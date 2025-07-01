@@ -1,13 +1,13 @@
 use crate::gates::{ mux16, inc16} ;
 
-pub struct DFF {
+pub struct Dff {
     input: u16,
     output: u16,
 }
 
-impl DFF {
+impl Dff {
     pub fn new() -> Self {
-        DFF { input: 0x0000, output: 0x0000 }
+        Dff { input: 0x0000, output: 0x0000 }
     }
 
     pub fn set_input(&mut self, value: u16) {
@@ -24,12 +24,12 @@ impl DFF {
 }
 
 pub struct Register16 {
-    dff: DFF,
+    dff: Dff,
 }
 
 impl Register16 {
     pub fn new() -> Self {
-        Register16 { dff: DFF::new() }
+        Register16 { dff: Dff::new() }
     }
 
     pub fn set_input(&mut self, input: u16, load: bool) {
@@ -46,12 +46,12 @@ impl Register16 {
 }
 
 pub struct Counter16 {
-    dff: DFF,
+    dff: Dff,
 }
 
 impl Counter16 {
     pub fn new() -> Self {
-        Counter16 { dff: DFF::new() }
+        Counter16 { dff: Dff::new() }
     }
 
     pub fn set_input(&mut self, input: u16, reset: bool, load: bool, inc: bool) {
@@ -79,7 +79,7 @@ mod tests {
 
     #[test]
     fn test_dff_basic_behavior() {
-        let mut dff = DFF::new();
+        let mut dff = Dff::new();
 
         // Initially output should be 0
         assert_eq!(dff.get_output(), 0);
@@ -95,7 +95,7 @@ mod tests {
 
     #[test]
     fn test_dff_multiple_ticks() {
-        let mut dff = DFF::new();
+        let mut dff = Dff::new();
 
         dff.set_input(0xAAAA);
         dff.tick();
