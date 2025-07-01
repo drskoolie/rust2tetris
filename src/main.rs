@@ -3,20 +3,21 @@ mod gates;
 mod sequential;
 
 use sequential::{Register16, Counter16};
-use alu::alu;
+use alu::{ alu, AluFlags };
 
 fn main() {
     let mut reg = Register16::new();
     let mut counter = Counter16::new();
-    let (output, _zr, _ng) = alu(
-        0x1,
-        0x1,
-        false,
-        false,
-        false,
-        false,
-        true,
-        false);
+    let flags_alu = AluFlags  {
+        zx: false,
+        nx: false,
+        zy: false,
+        ny: false,
+        f: true,
+        no: false
+    };
+
+    let (output, _zr, _ng) = alu(0x1, 0x1, flags_alu);
 
     reg.set_input(0xAAAA, true);
     reg.tick();
