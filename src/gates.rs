@@ -90,8 +90,30 @@ mod tests {
 
     #[test]
     #[should_panic(expected = "assertion failed")]
-    fn test_get_bet_invalid_index() {
+    fn test_get_bit_invalid_index() {
         get_bit(0xFFFF, 16);
+    }
+
+    #[test]
+    fn test_set_bit() {
+        let a: u16 = 0x0000;
+        let b: u16 = 0xFFFF;
+
+        let c = set_bit(a, 0, true);
+        assert_eq!(c, 0b1);
+
+        let c = set_bit(a, 1, true);
+        assert_eq!(c, 0b10);
+
+        let c = set_bit(b, 0, false);
+        assert_eq!(c, 0xFFFE);
+    }
+
+    #[test]
+    #[should_panic(expected = "assertion failed")]
+    fn test_set_bit_invalid_index() {
+        let a: u16 = 0xFFFF;
+        set_bit(a, 16, true);
     }
 
     #[test]
