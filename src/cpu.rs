@@ -337,6 +337,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::unusual_byte_groupings)]
     fn test_cpu_jump_c_instruction_jgt() {
         let mut cpu = Cpu::new();
         // a: 0
@@ -355,6 +356,29 @@ mod tests {
         cpu.execute(instruction);
         cpu.tick();
         assert_eq!{cpu.get_d(), 1};
+        assert_eq!{cpu.get_pc(), memory_loc};
+    }
+
+    #[test]
+    #[allow(clippy::unusual_byte_groupings)]
+    fn test_cpu_jump_c_instruction_jeq() {
+        let mut cpu = Cpu::new();
+        // a: 0
+        // c: 101010 // Set to Zero
+        // d: 010
+        // j: 010
+        let instruction: u16 = 0b111_0_101010_010_010;
+        let memory_loc: u16 = 0x7FFF;
+
+        assert_eq!{cpu.get_pc(), 0};
+        cpu.execute(memory_loc);
+        cpu.tick();
+        assert_eq!{cpu.get_a(), memory_loc};
+        assert_eq!{cpu.get_pc(), 1};
+
+        cpu.execute(instruction);
+        cpu.tick();
+        assert_eq!{cpu.get_d(), 0};
         assert_eq!{cpu.get_pc(), memory_loc};
     }
 
