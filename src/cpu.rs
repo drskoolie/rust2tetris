@@ -336,4 +336,26 @@ mod tests {
         assert_eq!(cpu.get_pc(), 2);
     }
 
+    #[test]
+    fn test_cpu_jump_c_instruction_jgt() {
+        let mut cpu = Cpu::new();
+        // a: 0
+        // c: 111111
+        // d: 010
+        // j: 001
+        let instruction: u16 = 0b111_0_111111_010_001;
+        let memory_loc: u16 = 0x7FFF;
+
+        assert_eq!{cpu.get_pc(), 0};
+        cpu.execute(memory_loc);
+        cpu.tick();
+        assert_eq!{cpu.get_a(), memory_loc};
+        assert_eq!{cpu.get_pc(), 1};
+
+        cpu.execute(instruction);
+        cpu.tick();
+        assert_eq!{cpu.get_d(), 1};
+        assert_eq!{cpu.get_pc(), memory_loc};
+    }
+
 }
