@@ -23,13 +23,13 @@ impl DFF {
     }
 }
 
-pub struct Register {
+pub struct Register16 {
     dff: DFF,
 }
 
-impl Register {
+impl Register16 {
     pub fn new() -> Self {
-        Register { dff: DFF::new() }
+        Register16 { dff: DFF::new() }
     }
 
     pub fn set_input(&mut self, input: u16, load: bool) {
@@ -82,7 +82,7 @@ mod tests {
 
     #[test]
     fn test_register_behavior() {
-        let mut reg = Register::new();
+        let mut reg = Register16::new();
         assert_eq!(reg.get_output(), 0x0);
 
         let input1 = 0xAAAA;

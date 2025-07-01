@@ -2,11 +2,11 @@ mod alu;
 mod gates;
 mod sequential;
 
-use sequential::Register;
+use sequential::Register16;
 use alu::alu;
 
 fn main() {
-    let mut reg = Register::new();
+    let mut reg = Register16::new();
     let (output, _zr, _ng) = alu(
         0x1,
         0x1,
