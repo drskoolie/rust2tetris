@@ -11,7 +11,12 @@ pub fn and16(a: u16, b: u16) -> u16 {
 }
 
 pub fn or16(a: u16, b: u16) -> u16 {
-    nand16(nand16(a, a), nand16(b, b))
+    nand16(not16(a), not16(b))
+}
+
+pub fn xor16(a: u16, b: u16) -> u16 {
+    nand16(nand16(nand16(a, b), a), nand16(nand16(a, b), b))
+
 }
 
 #[cfg(test)]
@@ -40,4 +45,10 @@ mod tests {
     fn test_or16() {
         assert_eq!(or16(0b0011, 0b0101), 0b0111);
     }
+
+    #[test]
+    fn test_xor16() {
+        assert_eq!(xor16(0b0011, 0b0101), 0b0110);
+    }
+
 }
