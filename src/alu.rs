@@ -567,4 +567,58 @@ mod tests {
             (x.wrapping_sub(y), false, true));
     }
 
+    #[test]
+    fn test_alu_out_y_minus_x() {
+        let x = 0x0002;
+        let y = 0x0003;
+        assert_eq!(
+            alu(
+                x, // x
+                y, // y
+                false, // zx
+                false, // nx
+                false, // zy
+                true, // ny
+                true, // f
+                true // no
+                ),
+            (y.wrapping_sub(x), false, false));
+    }
+
+    #[test]
+    fn test_alu_out_x_and_y() {
+        let x = 0x0002;
+        let y = 0x0003;
+        assert_eq!(
+            alu(
+                x, // x
+                y, // y
+                false, // zx
+                false, // nx
+                false, // zy
+                false, // ny
+                false, // f
+                false // no
+                ),
+            (x & y, false, false));
+    }
+
+    #[test]
+    fn test_alu_out_x_or_y() {
+        let x = 0x0002;
+        let y = 0x0003;
+        assert_eq!(
+            alu(
+                x, // x
+                y, // y
+                false, // zx
+                true, // nx
+                false, // zy
+                true, // ny
+                false, // f
+                true // no
+                ),
+            (x | y, false, false));
+    }
+
 }
