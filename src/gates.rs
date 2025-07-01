@@ -32,7 +32,23 @@ pub fn full_adder(a: bool, b: bool, carry_in: bool) -> (bool, bool) {
 }
 
 pub fn add16(a: u16, b:u16) -> u16 {
-    xor16(a, b)
+    let mut carry: bool = false;
+
+    let mut result: u16 = 0x0000;
+
+    for i in 0..16 {
+        let a_bit = ((a >> i) & 1) != 0;
+        let b_bit = ((b >> i) & 1) != 0;
+
+        let (sum, carry_next) = full_adder(a_bit, b_bit, carry);
+        carry = carry_next;
+
+        if sum {
+            result |= 1 << i;
+        }
+    }
+
+    result
 }
 
 #[cfg(test)]
@@ -68,11 +84,6 @@ mod tests {
     }
 
     #[test]
-    fn test_add16() {
-        assert_eq!(add16(0b0001, 0b0001), 0b0010);
-    }
-
-    #[test]
     fn test_half_adder() {
         assert_eq!(half_adder(false, false), (false, false));
         assert_eq!(half_adder(false, true), (true, false));
@@ -91,4 +102,11 @@ mod tests {
         assert_eq!(full_adder(true, true, false), (false, true));
         assert_eq!(full_adder(true, true, true), (true, true));
     }
+
+    #[test]
+    fn test_add16() {
+        assert_eq!(add16(0b0001, 0b0001), 0b0010);
+        assert_eq!(add16(0b0101, 0b0000), 0b0101);
+    }
+
 }
