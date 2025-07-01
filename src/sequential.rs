@@ -1,3 +1,5 @@
+use crate::gates::mux16;
+
 pub struct DFF {
     input: u16,
     output: u16,
@@ -18,6 +20,28 @@ impl DFF {
 
     pub fn tick(&mut self) {
         self.output = self.input;
+    }
+}
+
+pub struct Register {
+    dff: DFF,
+}
+
+impl Register {
+    pub fn new() -> Self {
+        Register { dff: DFF::new() }
+    }
+
+    pub fn set_input(&mut self, input: u16, load: bool) {
+        self.dff.set_input(mux16(input, self.dff.get_output(), load));
+    }
+
+    pub fn get_output(&self) -> u16 {
+        self.dff.get_output()
+    }
+
+    pub fn tick(&mut self) {
+        self.dff.tick();
     }
 }
 
@@ -54,5 +78,26 @@ mod tests {
 
         dff.tick();
         assert_eq!(dff.get_output(), 0x5555);
+    }
+
+    #[test]
+    fn test_register_behavior() {
+        let mut reg = Register::new();
+        assert_eq!(reg.get_output(), 0x0);
+
+        let input1 = 0xAAAA;
+        reg.set_input(input1, true);
+        assert_eq!(reg.get_output(), 0x0);
+        reg.tick() ;
+        assert_eq!(reg.get_output(), input1);
+
+        let input2 = 0xBCBC;
+        reg.set_input(input2, false);
+        reg.tick();
+        assert_eq!(reg.get_output(), input1);
+        reg.set_input(input2, true);
+        reg.tick();
+        assert_eq!(reg.get_output(), input2);
+
     }
 }
