@@ -1,5 +1,6 @@
+use crate::gates::{ and16, get_bit };
 use crate::alu::{ alu, AluFlags };
-use crate::sequential::{Register16, Counter16};
+use crate::sequential::{ Register16, Counter16 };
 
 pub struct Cpu {
     pub a: Register16,
@@ -20,8 +21,8 @@ impl Cpu {
         self.a.get_output()
     }
 
-    pub fn set_a(&mut self, value: u16, load: bool) {
-        self.a.set_input(value, load);
+    pub fn set_a(&mut self, value: u16) {
+        self.a.set_input(value, true);
     }
 
     pub fn print_a(&self) {
@@ -32,8 +33,8 @@ impl Cpu {
         self.d.get_output()
     }
 
-    pub fn set_d(&mut self, value: u16, load: bool) {
-        self.d.set_input(value, load);
+    pub fn set_d(&mut self, value: u16) {
+        self.d.set_input(value, true);
     }
 
     pub fn print_d(&self) {
@@ -64,6 +65,18 @@ impl Cpu {
         self.d.tick();
         self.pc.tick();
     }
+
+    pub fn execute(&mut self, instruction: u16) {
+        let is_c_instruction = get_bit(instruction, 15);
+
+        if is_c_instruction {
+        } else {
+            self.set_a(instruction);
+        }
+
+        self.tick();
+
+    }
 }
 
 #[cfg(test)]
@@ -85,8 +98,8 @@ mod tests {
         let mut cpu = Cpu::new();
         let new_value: u16 = 0xFFFF;
 
-        cpu.set_a(new_value, true);
-        cpu.set_d(new_value, true);
+        cpu.set_a(new_value);
+        cpu.set_d(new_value);
         cpu.set_pc(new_value, false, true, false);
 
         assert_eq!(cpu.get_a(), 0);
@@ -98,6 +111,14 @@ mod tests {
         assert_eq!(cpu.get_a(), new_value);
         assert_eq!(cpu.get_d(), new_value);
         assert_eq!(cpu.get_pc(), new_value);
+    }
 
+    #[test]
+    fn test_a_instruction() {
+        let mut cpu = Cpu::new();
+        let instruction: u16 = 0x7FFF;
+
+        cpu.execute(instruction);
+        assert_eq!(cpu.get_a(), instruction);
     }
 }

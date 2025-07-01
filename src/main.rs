@@ -21,9 +21,9 @@ fn main() {
 
     println!("ALU: {:016b}", output);
     cpu.print_cpu();
-    cpu.set_a(0xFF00, true);
-    cpu.set_d(0x00FF, true);
+    cpu.set_d(0x00FF);
     cpu.set_pc(0xFFFF, false, true, false);
+    cpu.execute(0x7FFF);
     cpu.tick();
     cpu.print_cpu();
 }
