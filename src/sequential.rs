@@ -1,4 +1,4 @@
-use crate::gates::mux16;
+use crate::gates::{ mux16, inc16} ;
 
 pub struct DFF {
     input: u16,
@@ -34,6 +34,34 @@ impl Register16 {
 
     pub fn set_input(&mut self, input: u16, load: bool) {
         self.dff.set_input(mux16(input, self.dff.get_output(), load));
+    }
+
+    pub fn get_output(&self) -> u16 {
+        self.dff.get_output()
+    }
+
+    pub fn tick(&mut self) {
+        self.dff.tick();
+    }
+}
+
+pub struct Counter16 {
+    dff: DFF,
+}
+
+impl Counter16 {
+    pub fn new() -> Self {
+        Counter16 { dff: DFF::new() }
+    }
+
+    pub fn set_input(&mut self, input: u16, reset: bool, load: bool, inc: bool) {
+        if reset {
+            self.dff.set_input(0x0);
+        } else if load { 
+            self.dff.set_input(input);
+        } else if inc {
+            self.dff.set_input(inc16(self.dff.get_output()));
+        }
     }
 
     pub fn get_output(&self) -> u16 {
@@ -100,4 +128,24 @@ mod tests {
         assert_eq!(reg.get_output(), input2);
 
     }
+
+    #[test]
+    fn test_counter_init() {
+        let counter = Counter16::new();
+
+        assert_eq!(counter.get_output(), 0x0);
+    }
+
+    #[test]
+    fn test_counter_load() {
+        let mut counter = Counter16::new();
+        let input = 0x10F0;
+
+        assert_eq!(counter.get_output(), 0x0);
+        counter.set_input(input, false, true, false);
+        assert_eq!(counter.get_output(), 0x0);
+        counter.tick();
+        assert_eq!(counter.get_output(), input);
+    }
+
 }
