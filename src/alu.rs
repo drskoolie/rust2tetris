@@ -152,4 +152,36 @@ mod tests {
                 ),
             (0x0001, false, false));
     }
+
+    #[test]
+    fn test_alu_ny_true() {
+        assert_eq!(
+            alu(
+                0x0000, // x
+                0x0001, // y
+                false, // zx
+                false, // nx
+                false, // zy
+                true, // ny
+                true, // f
+                false // no
+                ),
+            (0xFFFE, false, true));
+    }
+
+    #[test]
+    fn test_alu_ny_false() {
+        assert_eq!(
+            alu(
+                0x0000, // x
+                0x0001, // y
+                false, // zx
+                false, // nx
+                false, // zy
+                false, // ny
+                true, // f
+                false // no
+                ),
+            (0x0001, false, false));
+    }
 }
