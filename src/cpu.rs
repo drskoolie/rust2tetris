@@ -382,4 +382,118 @@ mod tests {
         assert_eq!{cpu.get_pc(), memory_loc};
     }
 
+    #[test]
+    #[allow(clippy::unusual_byte_groupings)]
+    fn test_cpu_jump_c_instruction_jge() {
+        let mut cpu = Cpu::new();
+        // c: 101010 (0)
+        // d: 010
+        // j: 011
+        let instruction: u16 = 0b111_0_101010_010_011;
+        let memory_loc: u16 = 0x7FFF;
+
+        assert_eq!{cpu.get_pc(), 0};
+        cpu.execute(memory_loc);
+        cpu.tick();
+        assert_eq!{cpu.get_a(), memory_loc};
+        assert_eq!{cpu.get_pc(), 1};
+
+        cpu.execute(instruction);
+        cpu.tick();
+        assert_eq!{cpu.get_d(), 0};
+        assert_eq!{cpu.get_pc(), memory_loc};
+    }
+
+    #[test]
+    #[allow(clippy::unusual_byte_groupings)]
+    fn test_cpu_jump_c_instruction_jlt() {
+        let mut cpu = Cpu::new();
+        // c: 111010 (−1)
+        // d: 010
+        // j: 100
+        let instruction: u16 = 0b111_0_111010_010_100;
+        let memory_loc: u16 = 0x7FFF;
+
+        assert_eq!{cpu.get_pc(), 0};
+        cpu.execute(memory_loc);
+        cpu.tick();
+        assert_eq!{cpu.get_a(), memory_loc};
+        assert_eq!{cpu.get_pc(), 1};
+
+        cpu.execute(instruction);
+        cpu.tick();
+        assert_eq!{cpu.get_d(), 0xFFFF}; // −1
+        assert_eq!{cpu.get_pc(), memory_loc};
+    }
+
+    #[test]
+    #[allow(clippy::unusual_byte_groupings)]
+    fn test_cpu_jump_c_instruction_jne() {
+        let mut cpu = Cpu::new();
+        // c: 111111 (1)
+        // d: 010
+        // j: 101
+        let instruction: u16 = 0b111_0_111111_010_101;
+        let memory_loc: u16 = 0x7FFF;
+
+        assert_eq!{cpu.get_pc(), 0};
+        cpu.execute(memory_loc);
+        cpu.tick();
+        assert_eq!{cpu.get_a(), memory_loc};
+        assert_eq!{cpu.get_pc(), 1};
+
+        cpu.execute(instruction);
+        cpu.tick();
+        assert_eq!{cpu.get_d(), 1};
+        assert_eq!{cpu.get_pc(), memory_loc};
+    }
+
+    #[test]
+    #[allow(clippy::unusual_byte_groupings)]
+    fn test_cpu_jump_c_instruction_jle() {
+        let mut cpu = Cpu::new();
+        // c: 111010 (−1)
+        // d: 010
+        // j: 110
+        let instruction: u16 = 0b111_0_111010_010_110;
+        let memory_loc: u16 = 0x7FFF;
+
+        assert_eq!{cpu.get_pc(), 0};
+        cpu.execute(memory_loc);
+        cpu.tick();
+        assert_eq!{cpu.get_a(), memory_loc};
+        assert_eq!{cpu.get_pc(), 1};
+
+        cpu.execute(instruction);
+        cpu.tick();
+        assert_eq!{cpu.get_d(), 0xFFFF}; // −1
+        assert_eq!{cpu.get_pc(), memory_loc};
+    }
+
+    #[test]
+    #[allow(clippy::unusual_byte_groupings)]
+    fn test_cpu_jump_c_instruction_jmp() {
+        let mut cpu = Cpu::new();
+        // c: 101010 (0)
+        // d: 010
+        // j: 111
+        let instruction: u16 = 0b111_0_101010_010_111;
+        let memory_loc: u16 = 0x7FFF;
+
+        assert_eq!{cpu.get_pc(), 0};
+        cpu.execute(memory_loc);
+        cpu.tick();
+        assert_eq!{cpu.get_a(), memory_loc};
+        assert_eq!{cpu.get_pc(), 1};
+
+        cpu.execute(instruction);
+        cpu.tick();
+        assert_eq!{cpu.get_d(), 0};
+        assert_eq!{cpu.get_pc(), memory_loc};
+    }
+
+
+
+
+
 }
