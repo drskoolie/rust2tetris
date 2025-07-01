@@ -18,6 +18,10 @@ pub fn xor16(a: u16, b: u16) -> u16 {
     nand16(nand16(nand16(a, b), a), nand16(nand16(a, b), b))
 }
 
+pub fn mux16(a: u16, b: u16, sel: bool) -> u16 {
+    if sel { a } else { b }
+}
+
 pub fn half_adder(a: bool, b: bool) -> (bool, bool) {
     let sum = a ^ b;
     let carry = a & b;
@@ -85,6 +89,20 @@ mod tests {
     #[test]
     fn test_xor16() {
         assert_eq!(xor16(0b0011, 0b0101), 0b0110);
+    }
+
+    #[test]
+    fn test_mux16_select_a() {
+        let x = 0x1042;
+        let y = 0xFFA2;
+        assert_eq!(mux16(x, y, true), x);
+    }
+
+    #[test]
+    fn test_mux16_select_b() {
+        let x = 0x1042;
+        let y = 0xFFA2;
+        assert_eq!(mux16(x, y, false), y);
     }
 
     #[test]
