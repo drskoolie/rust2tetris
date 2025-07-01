@@ -9,7 +9,7 @@ fn main() {
     let mut cpu = Cpu::new();
     cpu.print_cpu();
     cpu.set_d(0x00FF);
-    cpu.set_pc(0xFFFF, false, true, false);
+    cpu.set_pc(0xFFFF, false, true);
     cpu.execute(0x7FFF);
     cpu.tick();
     cpu.print_cpu();

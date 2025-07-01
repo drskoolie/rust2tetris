@@ -1,11 +1,12 @@
-use crate::gates::{ and16, get_bit };
+use crate::gates::{ get_bit };
 use crate::alu::{ alu, AluFlags };
-use crate::sequential::{ Register16, Counter16 };
+use crate::sequential::{ Register16, Counter16, Ram32K };
 
 pub struct Cpu {
     pub a: Register16,
     pub d: Register16,
     pub pc: Counter16,
+    pub data: Ram32K,
 }
 
 impl Cpu {
@@ -14,6 +15,7 @@ impl Cpu {
             a: Register16::new(),
             d: Register16::new(),
             pc: Counter16::new(),
+            data: Ram32K::new(),
         }
     }
 
@@ -45,8 +47,12 @@ impl Cpu {
         self.pc.get_output()
     }
 
-    pub fn set_pc(&mut self, input: u16, reset: bool, load: bool, inc: bool) {
-        self.pc.set_input(input, reset, load, inc);
+    pub fn set_pc(&mut self, input: u16, reset: bool, load: bool) {
+        self.pc.set_input(input, reset, load, false);
+    }
+
+    pub fn inc_pc(&mut self) {
+        self.pc.set_input(0x0, false, false, true);
     }
 
     pub fn print_pc(&self) {
@@ -64,6 +70,7 @@ impl Cpu {
         self.a.tick();
         self.d.tick();
         self.pc.tick();
+        self.data.tick();
     }
 
     pub fn execute(&mut self, instruction: u16) {
@@ -71,11 +78,12 @@ impl Cpu {
 
         if is_c_instruction {
             let is_memory = get_bit(instruction, 12);
-            if is_memory {
-                let a_register: u16 = self.get_a();
+            let a_register = if is_memory{
+                let address = self.get_a() as usize;
+                self.data.get(address)
             } else {
-                let a_register: u16 = self.get_a();
-            }
+                self.get_a()
+            };
 
             let flags_alu = AluFlags {
                 zx: get_bit(instruction, 11),
@@ -86,8 +94,23 @@ impl Cpu {
                 no: get_bit(instruction, 6),
             };
 
-            let (output, zr, ng) = alu(self.get_a(), self.get_d(), flags_alu);
+            let (output, zr, ng) = alu(self.get_d(), a_register, flags_alu);
 
+            let d1 = get_bit(instruction, 5);
+            let d2 = get_bit(instruction, 4);
+            let d3 = get_bit(instruction, 3);
+
+            if d3 {
+                self.data.set(self.get_a() as usize, output);
+            }
+
+            if d2 {
+                self.set_d(output);
+            }
+
+            if d1 {
+                self.set_a(output);
+            }
 
         } else {
             self.set_a(instruction);
@@ -119,7 +142,7 @@ mod tests {
 
         cpu.set_a(new_value);
         cpu.set_d(new_value);
-        cpu.set_pc(new_value, false, true, false);
+        cpu.set_pc(new_value, false, true);
 
         assert_eq!(cpu.get_a(), 0);
         assert_eq!(cpu.get_d(), 0);
