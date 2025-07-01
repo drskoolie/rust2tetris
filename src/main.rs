@@ -14,5 +14,6 @@ fn main() {
     cpu.set_pc(0xFFFF);
     cpu.execute(0x7FFF);
     cpu.tick();
+    cpu.clock();
     cpu.print_cpu();
 }

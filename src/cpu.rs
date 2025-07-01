@@ -1,4 +1,4 @@
-use crate::gates::{ get_bit };
+use crate::gates::get_bit;
 use crate::alu::{ alu, AluFlags };
 use crate::sequential::{ Register16, Counter16, Ram32K };
 
@@ -268,7 +268,7 @@ mod tests {
         assert_eq!{cpu.get_d(), 10};
         cpu.execute(instruction);
         cpu.tick();
-        assert_eq!{cpu.get_d(), not16(1).wrapping_add(1)};
+        assert_eq!{cpu.get_d(), (!(0x0001) as u16).wrapping_add(1)};
     }
 
     #[test]
