@@ -1,3 +1,8 @@
+pub fn get_bit(a: u16, i: usize) -> bool {
+    assert!(i < 16);
+    (a >> i) & 1 != 0
+}
+
 pub fn nand16(a: u16, b: u16) -> u16 {
     !(a & b)
 }
@@ -62,6 +67,24 @@ pub fn inc16(a: u16) -> u16 {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_get_bit() {
+        let value: u16 = 0b1010_0000_0000_1010;
+
+        assert!(!get_bit(value, 0));
+        assert!(get_bit(value, 1));
+        assert!(!get_bit(value, 2));
+        assert!(get_bit(value, 3));
+        assert!(!get_bit(value, 4));
+    }
+
+    #[test]
+    #[should_panic(expected = "assertion failed")]
+    fn test_get_bet_invalid_index() {
+        get_bit(0xFFFF, 16);
+
+    }
 
     #[test]
     fn test_nand16() {
