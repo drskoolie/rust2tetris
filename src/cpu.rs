@@ -47,12 +47,16 @@ impl Cpu {
         self.pc.get_output()
     }
 
-    pub fn set_pc(&mut self, input: u16, reset: bool, load: bool) {
-        self.pc.set_input(input, reset, load, false);
+    pub fn set_pc(&mut self, input: u16) {
+        self.pc.set_input(input, false, true, false);
     }
 
     pub fn inc_pc(&mut self) {
         self.pc.set_input(0x0, false, false, true);
+    }
+
+    pub fn reset_pc(&mut self) {
+        self.pc.set_input(0x0, true, false, false);
     }
 
     pub fn print_pc(&self) {
@@ -136,13 +140,31 @@ mod tests {
     }
 
     #[test]
+    fn test_cpu_pc() {
+        let mut cpu = Cpu::new();
+        let value: u16 = 0xFF00;
+
+        cpu.set_pc(value);
+        cpu.tick();
+        assert_eq!{cpu.get_pc(), value};
+
+        cpu.inc_pc();
+        cpu.tick();
+        assert_eq!{cpu.get_pc(), value.wrapping_add(1)};
+
+        cpu.reset_pc();
+        cpu.tick();
+        assert_eq!{cpu.get_pc(), 0};
+    }
+
+    #[test]
     fn test_cpu_setting() {
         let mut cpu = Cpu::new();
         let new_value: u16 = 0xFFFF;
 
         cpu.set_a(new_value);
         cpu.set_d(new_value);
-        cpu.set_pc(new_value, false, true);
+        cpu.set_pc(new_value);
 
         assert_eq!(cpu.get_a(), 0);
         assert_eq!(cpu.get_d(), 0);
