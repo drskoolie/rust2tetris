@@ -463,5 +463,39 @@ mod tests {
             (0xFFFF, false, true));
     }
 
+    #[test]
+    fn test_alu_out_inc_x() {
+        let x = 0x0001;
+        assert_eq!(
+            alu(
+                x, // x
+                0x01FA, // y
+                false, // zx
+                true, // nx
+                true, // zy
+                true, // ny
+                true, // f
+                true // no
+                ),
+            (0x0002, false, false));
+    }
+
+    #[test]
+    fn test_alu_out_inc_y() {
+        let y = 0x0001;
+        assert_eq!(
+            alu(
+                0x014A, // x
+                y, // y
+                true, // zx
+                true, // nx
+                false, // zy
+                true, // ny
+                true, // f
+                true // no
+                ),
+            (0x0002, false, false));
+    }
+
 
 }
