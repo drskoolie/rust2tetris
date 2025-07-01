@@ -140,12 +140,12 @@ impl Cpu {
             self.set_a(instruction);
         }
 
-        self.tick();
         if jump {
             self.set_pc(self.get_a());
         } else {
             self.inc_pc();
         }
+        self.tick();
 
     }
 }
@@ -203,11 +203,21 @@ mod tests {
     }
 
     #[test]
-    fn test_a_instruction() {
+    fn test_cpu_a_instruction() {
         let mut cpu = Cpu::new();
         let instruction: u16 = 0x7FFF;
 
         cpu.execute(instruction);
         assert_eq!(cpu.get_a(), instruction);
+    }
+
+    #[test]
+    fn test_cpu_jump_a_instruction() {
+        let mut cpu = Cpu::new();
+        let instruction: u16 = 0x0001;
+
+        assert_eq!(cpu.get_pc(), 0);
+        cpu.execute(instruction);
+        assert_eq!(cpu.get_pc(), 1);
     }
 }
