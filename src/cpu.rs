@@ -79,6 +79,7 @@ impl Cpu {
 
     pub fn execute(&mut self, instruction: u16) {
         let is_c_instruction = get_bit(instruction, 15);
+        let mut jump = false;
 
         if is_c_instruction {
             let is_memory = get_bit(instruction, 12);
@@ -98,7 +99,8 @@ impl Cpu {
                 no: get_bit(instruction, 6),
             };
 
-            let (output, zr, ng) = alu(self.get_d(), a_register, flags_alu);
+            let (output, is_zero, is_neg) = alu(self.get_d(), a_register, flags_alu);
+            let is_pos = !is_zero && !is_neg;
 
             let d1 = get_bit(instruction, 5);
             let d2 = get_bit(instruction, 4);
@@ -116,11 +118,34 @@ impl Cpu {
                 self.set_a(output);
             }
 
+            let jump_code: u8 = 
+                ((get_bit(instruction, 2) as u8) << 2) |
+                ((get_bit(instruction, 1) as u8) << 1) |
+                (get_bit(instruction, 0) as u8);
+
+            jump = match jump_code {
+                0b000 => false,                              // null
+                0b001 => is_pos,                             // JGT
+                0b010 => is_zero,                            // JEQ
+                0b011 => is_pos || is_zero,                  // JGE
+                0b100 => is_neg,                             // JLT
+                0b101 => !is_zero,                           // JNE
+                0b110 => is_neg || is_zero,                  // JLE
+                0b111 => true,                               // JMP
+                _ => false,                                  // should never happen
+            };
+
+
         } else {
             self.set_a(instruction);
         }
 
         self.tick();
+        if jump {
+            self.set_pc(self.get_a());
+        } else {
+            self.inc_pc();
+        }
 
     }
 }
