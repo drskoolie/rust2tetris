@@ -1,4 +1,5 @@
 mod alu;
+mod cpu;
 mod gates;
 mod sequential;
 
