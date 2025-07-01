@@ -1,4 +1,4 @@
-use crate::gates::{ not16, get_bit };
+use crate::gates::{ get_bit };
 use crate::alu::{ alu, AluFlags };
 use crate::sequential::{ Register16, Counter16, Ram32K };
 

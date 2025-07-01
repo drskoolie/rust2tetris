@@ -24,14 +24,6 @@ pub fn and16(a: u16, b: u16) -> u16 {
     not16(nand16(a, b))
 }
 
-pub fn or16(a: u16, b: u16) -> u16 {
-    nand16(not16(a), not16(b))
-}
-
-pub fn xor16(a: u16, b: u16) -> u16 {
-    nand16(nand16(nand16(a, b), a), nand16(nand16(a, b), b))
-}
-
 pub fn mux16(a: u16, b: u16, sel: bool) -> u16 {
     if sel { a } else { b }
 }
@@ -62,7 +54,7 @@ pub fn add16(a: u16, b:u16) -> u16 {
         carry = carry_next;
 
         if sum {
-            result |= 1 << i;
+            result |= set_bit(0x0, i, true);
         }
     }
 
@@ -132,16 +124,6 @@ mod tests {
     #[test]
     fn test_and16() {
         assert_eq!(and16(0b0011, 0b0101), 0b0001);
-    }
-
-    #[test]
-    fn test_or16() {
-        assert_eq!(or16(0b0011, 0b0101), 0b0111);
-    }
-
-    #[test]
-    fn test_xor16() {
-        assert_eq!(xor16(0b0011, 0b0101), 0b0110);
     }
 
     #[test]
