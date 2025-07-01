@@ -71,6 +71,12 @@ impl Cpu {
 
         if is_c_instruction {
             let is_memory = get_bit(instruction, 12);
+            if is_memory {
+                let a_register: u16 = self.get_a();
+            } else {
+                let a_register: u16 = self.get_a();
+            }
+
             let flags_alu = AluFlags {
                 zx: get_bit(instruction, 11),
                 nx: get_bit(instruction, 10),

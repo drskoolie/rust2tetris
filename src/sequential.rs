@@ -1,3 +1,4 @@
+use std::array::from_fn;
 use crate::gates::{ mux16, inc16} ;
 
 pub struct Dff {
@@ -72,6 +73,35 @@ impl Counter16 {
         self.dff.tick();
     }
 }
+
+pub struct Ram32K {
+    registers: [Register16; 32 * 1024], // 32K = 32768
+}
+
+impl Ram32K {
+    pub fn new() -> Self {
+        Ram32K {
+            registers: from_fn(|_| Register16::new()),
+        }
+    }
+
+    pub fn get(&self, address: usize) -> u16 {
+        assert!(address < 32 * 1024);
+        self.registers[address].get_output()
+    }
+
+    pub fn set(&mut self, address: usize, value: u16) {
+        assert!(address < 32 * 1024);
+        self.registers[address].set_input(value, true);
+    }
+
+    pub fn tick(&mut self) {
+        for reg in self.registers.iter_mut() {
+            reg.tick();
+        }
+    }
+}
+
 
 #[cfg(test)]
 mod tests {
@@ -175,5 +205,72 @@ mod tests {
         counter.tick();
         assert_eq!(counter.get_output(), 1);
     }
+
+    #[test]
+    fn test_ram32k_initial_state() {
+        let ram = Ram32K::new();
+        for addr in [0, 1, 100, 1023, 32767] {
+            assert_eq!(ram.get(addr), 0);
+        }
+    }
+
+    #[test]
+    fn test_ram32k_write_and_read_single_address() {
+        let mut ram = Ram32K::new();
+        let addr = 12345;
+        let value = 0xBEEF;
+
+        // Write value with load = true
+        ram.set(addr, value);
+        assert_eq!(ram.get(addr), 0); // Not yet stored until tick
+
+        ram.tick(); // Now commit
+        assert_eq!(ram.get(addr), value);
+    }
+
+    #[test]
+    fn test_ram32k_multiple_addresses_independent() {
+        let mut ram = Ram32K::new();
+        let addr1 = 100;
+        let addr2 = 200;
+        let val1 = 0x1111;
+        let val2 = 0x2222;
+
+        ram.set(addr1, val1);
+        ram.set(addr2, val2);
+        ram.tick();
+
+        assert_eq!(ram.get(addr1), val1);
+        assert_eq!(ram.get(addr2), val2);
+    }
+
+    #[test]
+    fn test_ram32k_write_same_address_multiple_times() {
+        let mut ram = Ram32K::new();
+        let addr = 30000;
+
+        ram.set(addr, 0xAAAA);
+        ram.tick();
+        assert_eq!(ram.get(addr), 0xAAAA);
+
+        ram.set(addr, 0xBBBB);
+        ram.tick();
+        assert_eq!(ram.get(addr), 0xBBBB);
+    }
+
+    #[test]
+    #[should_panic(expected = "assertion failed")]
+    fn test_ram32k_out_of_bounds_get() {
+        let ram = Ram32K::new();
+        ram.get(32768); // Invalid index
+    }
+
+    #[test]
+    #[should_panic(expected = "assertion failed")]
+    fn test_ram32k_out_of_bounds_set() {
+        let mut ram = Ram32K::new();
+        ram.set(40000, 0x1234); // Invalid index
+    }
+
 
 }
