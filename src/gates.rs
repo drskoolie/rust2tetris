@@ -3,6 +3,15 @@ pub fn get_bit(a: u16, i: usize) -> bool {
     (a >> i) & 1 != 0
 }
 
+pub fn set_bit(a: u16, i: usize, value: bool) -> u16 {
+    assert!(i < 16);
+    if value {
+        a | (1 << i)
+    } else {
+        a & !(1 << i)
+    }
+}
+
 pub fn nand16(a: u16, b: u16) -> u16 {
     !(a & b)
 }
@@ -83,7 +92,6 @@ mod tests {
     #[should_panic(expected = "assertion failed")]
     fn test_get_bet_invalid_index() {
         get_bit(0xFFFF, 16);
-
     }
 
     #[test]
