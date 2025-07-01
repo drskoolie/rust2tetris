@@ -20,12 +20,30 @@ impl Cpu {
         self.a.get_output()
     }
 
+    pub fn set_a(&mut self, value: u16, load: bool) {
+        self.a.set_input(value, load);
+    }
+
     pub fn get_d(&self) -> u16 {
         self.d.get_output()
     }
 
+    pub fn set_d(&mut self, value: u16, load: bool) {
+        self.d.set_input(value, load);
+    }
+
     pub fn get_pc(&self) -> u16 {
         self.pc.get_output()
+    }
+
+    pub fn set_pc(&mut self, input: u16, reset: bool, load: bool, inc: bool) {
+        self.pc.set_input(input, reset, load, inc);
+    }
+
+    pub fn tick(&mut self) {
+        self.a.tick();
+        self.d.tick();
+        self.pc.tick();
     }
 }
 
@@ -40,6 +58,27 @@ mod tests {
         assert_eq!(cpu.get_a(), 0);
         assert_eq!(cpu.get_d(), 0);
         assert_eq!(cpu.get_pc(), 0);
+
+    }
+
+    #[test]
+    fn test_cpu_setting() {
+        let mut cpu = Cpu::new();
+        let new_value: u16 = 0xFFFF;
+
+        cpu.set_a(new_value, true);
+        cpu.set_d(new_value, true);
+        cpu.set_pc(new_value, false, true, false);
+
+        assert_eq!(cpu.get_a(), 0);
+        assert_eq!(cpu.get_d(), 0);
+        assert_eq!(cpu.get_pc(), 0);
+
+        cpu.tick();
+
+        assert_eq!(cpu.get_a(), new_value);
+        assert_eq!(cpu.get_d(), new_value);
+        assert_eq!(cpu.get_pc(), new_value);
 
     }
 }
