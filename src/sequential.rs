@@ -148,4 +148,32 @@ mod tests {
         assert_eq!(counter.get_output(), input);
     }
 
+    #[test]
+    fn test_counter_reset() {
+        let mut counter = Counter16::new();
+        let input = 0x10F0;
+
+        assert_eq!(counter.get_output(), 0x0);
+        counter.set_input(input, false, true, false);
+        assert_eq!(counter.get_output(), 0x0);
+        counter.tick();
+        assert_eq!(counter.get_output(), input);
+
+        counter.set_input(input, true, false, false);
+        assert_eq!(counter.get_output(), input);
+        counter.tick();
+        assert_eq!(counter.get_output(), 0x0);
+    }
+
+    #[test]
+    fn test_counter_inc() {
+        let mut counter = Counter16::new();
+        let input = 0x10F0;
+
+        assert_eq!(counter.get_output(), 0x0);
+        counter.set_input(input, false, false, true);
+        counter.tick();
+        assert_eq!(counter.get_output(), 1);
+    }
+
 }
