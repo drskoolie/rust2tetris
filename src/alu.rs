@@ -345,4 +345,55 @@ mod tests {
             (0x0001, false, false));
     }
 
+    #[test]
+    fn test_alu_out_neg_1() {
+        assert_eq!(
+            alu(
+                0x0001, // x
+                0x0F00, // y
+                true, // zx
+                true, // nx
+                true, // zy
+                false, // ny
+                true, // f
+                false // no
+                ),
+            (0xFFFF, false, true));
+    }
+
+    #[test]
+    fn test_alu_out_x() {
+        let x = 0x0F1E;
+        assert_eq!(
+            alu(
+                x, // x
+                0x01FA, // y
+                false, // zx
+                false, // nx
+                true, // zy
+                false, // ny
+                true, // f
+                false // no
+                ),
+            (x, false, false));
+    }
+
+    #[test]
+    fn test_alu_out_y() {
+        let y = 0x0F1E;
+        assert_eq!(
+            alu(
+                0x014A, // x
+                y, // y
+                true, // zx
+                false, // nx
+                false, // zy
+                false, // ny
+                true, // f
+                false // no
+                ),
+            (y, false, false));
+    }
+
+
 }
