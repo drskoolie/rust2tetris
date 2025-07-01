@@ -497,5 +497,39 @@ mod tests {
             (0x0002, false, false));
     }
 
+    #[test]
+    fn test_alu_out_dec_x() {
+        let x = 0x0002;
+        assert_eq!(
+            alu(
+                x, // x
+                0x01FA, // y
+                false, // zx
+                false, // nx
+                true, // zy
+                true, // ny
+                true, // f
+                false // no
+                ),
+            (0x0001, false, false));
+    }
+
+    #[test]
+    fn test_alu_out_dec_y() {
+        let y = 0x0002;
+        assert_eq!(
+            alu(
+                0x014A, // x
+                y, // y
+                true, // zx
+                true, // nx
+                false, // zy
+                false, // ny
+                true, // f
+                false // no
+                ),
+            (0x0001, false, false));
+    }
+
 
 }
