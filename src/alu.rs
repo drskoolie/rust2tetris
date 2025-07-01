@@ -395,5 +395,39 @@ mod tests {
             (y, false, false));
     }
 
+    #[test]
+    fn test_alu_out_not_x() {
+        let x = 0x0F1E;
+        assert_eq!(
+            alu(
+                x, // x
+                0x01FA, // y
+                false, // zx
+                false, // nx
+                true, // zy
+                true, // ny
+                false, // f
+                true // no
+                ),
+            (not16(x), false, true));
+    }
+
+    #[test]
+    fn test_alu_out_not_y() {
+        let y = 0x0F1E;
+        assert_eq!(
+            alu(
+                0x014A, // x
+                y, // y
+                true, // zx
+                true, // nx
+                false, // zy
+                false, // ny
+                false, // f
+                true // no
+                ),
+            (not16(y), false, true));
+    }
+
 
 }
