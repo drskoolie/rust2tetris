@@ -24,6 +24,10 @@ impl Cpu {
         self.a.set_input(value, load);
     }
 
+    pub fn print_a(&self) {
+        println!{"A:  {:016b}", self.get_a()};
+    }
+
     pub fn get_d(&self) -> u16 {
         self.d.get_output()
     }
@@ -32,12 +36,27 @@ impl Cpu {
         self.d.set_input(value, load);
     }
 
+    pub fn print_d(&self) {
+        println!{"D:  {:016b}", self.get_d()};
+    }
+
     pub fn get_pc(&self) -> u16 {
         self.pc.get_output()
     }
 
     pub fn set_pc(&mut self, input: u16, reset: bool, load: bool, inc: bool) {
         self.pc.set_input(input, reset, load, inc);
+    }
+
+    pub fn print_pc(&self) {
+        println!{"PC: {:016b}", self.get_pc()};
+    }
+
+    pub fn print_cpu(&self) {
+        println!{"------------"};
+        self.print_a();
+        self.print_d();
+        self.print_pc();
     }
 
     pub fn tick(&mut self) {

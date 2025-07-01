@@ -3,12 +3,11 @@ mod cpu;
 mod gates;
 mod sequential;
 
-use sequential::{Register16, Counter16};
 use alu::{ alu, AluFlags };
+use cpu::Cpu;
 
 fn main() {
-    let mut reg = Register16::new();
-    let mut counter = Counter16::new();
+    let mut cpu = Cpu::new();
     let flags_alu = AluFlags  {
         zx: false,
         nx: false,
@@ -20,11 +19,11 @@ fn main() {
 
     let (output, _zr, _ng) = alu(0x1, 0x1, flags_alu);
 
-    reg.set_input(0xAAAA, true);
-    reg.tick();
-    counter.set_input(0xFFFF, false, true, false);
-    counter.tick();
-    println!("Regeister: {:016b}", reg.get_output());
     println!("ALU: {:016b}", output);
-    println!("Counter: {:016b}", counter.get_output());
+    cpu.print_cpu();
+    cpu.set_a(0xFF00, true);
+    cpu.set_d(0x00FF, true);
+    cpu.set_pc(0xFFFF, false, true, false);
+    cpu.tick();
+    cpu.print_cpu();
 }
