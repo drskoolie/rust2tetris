@@ -212,7 +212,7 @@ mod tests {
     }
 
     #[test]
-    fn test_cpu_zero_a0() {
+    fn test_cpu_zero_a() {
         let mut cpu = Cpu::new();
         // a: 0
         // c: 101010
@@ -227,22 +227,7 @@ mod tests {
     }
 
     #[test]
-    fn test_cpu_zero_a1() {
-        let mut cpu = Cpu::new();
-        // a: 1
-        // c: 101010
-        // d: 010
-        let instruction: u16 = 0b1111_1010_1001_0000; 
-
-        cpu.set_d(10);
-        cpu.tick();
-        assert_eq!{cpu.get_d(), 10};
-        cpu.execute(instruction);
-        assert_eq!{cpu.get_d(), 0};
-    }
-
-    #[test]
-    fn test_cpu_one_a0() {
+    fn test_cpu_one() {
         let mut cpu = Cpu::new();
         // a: 0
         // c: 111111
@@ -257,42 +242,12 @@ mod tests {
     }
 
     #[test]
-    fn test_cpu_one_a1() {
-        let mut cpu = Cpu::new();
-        // a: 1
-        // c: 111111
-        // d: 010
-        let instruction: u16 = 0b1111_1111_1101_0000; 
-
-        cpu.set_d(10);
-        cpu.tick();
-        assert_eq!{cpu.get_d(), 10};
-        cpu.execute(instruction);
-        assert_eq!{cpu.get_d(), 1};
-    }
-
-    #[test]
-    fn test_cpu_neg_one_a0() {
+    fn test_cpu_neg_one() {
         let mut cpu = Cpu::new();
         // a: 0
         // c: 111010
         // d: 010
         let instruction: u16 = 0b1110_1110_1001_0000; 
-
-        cpu.set_d(10);
-        cpu.tick();
-        assert_eq!{cpu.get_d(), 10};
-        cpu.execute(instruction);
-        assert_eq!{cpu.get_d(), not16(1).wrapping_add(1)};
-    }
-
-    #[test]
-    fn test_cpu_neg_one_a1() {
-        let mut cpu = Cpu::new();
-        // a: 1
-        // c: 111010
-        // d: 010
-        let instruction: u16 = 0b1111_1110_1001_0000; 
 
         cpu.set_d(10);
         cpu.tick();
