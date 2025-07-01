@@ -55,8 +55,8 @@ pub fn add16(a: u16, b:u16) -> u16 {
     let mut result: u16 = 0x0000;
 
     for i in 0..16 {
-        let a_bit = ((a >> i) & 1) != 0;
-        let b_bit = ((b >> i) & 1) != 0;
+        let a_bit = get_bit(a, i);
+        let b_bit = get_bit(b, i);
 
         let (sum, carry_next) = full_adder(a_bit, b_bit, carry);
         carry = carry_next;
