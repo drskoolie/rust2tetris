@@ -212,6 +212,66 @@ mod tests {
     }
 
     #[test]
+    fn test_cpu_zero_a0() {
+        let mut cpu = Cpu::new();
+        // a: 0
+        // c: 101010
+        // d: 010
+        let instruction: u16 = 0b1110_1010_1001_0000; 
+
+        cpu.set_d(10);
+        cpu.tick();
+        assert_eq!{cpu.get_d(), 10};
+        cpu.execute(instruction);
+        assert_eq!{cpu.get_d(), 0};
+    }
+
+    #[test]
+    fn test_cpu_zero_a1() {
+        let mut cpu = Cpu::new();
+        // a: 1
+        // c: 101010
+        // d: 010
+        let instruction: u16 = 0b1111_1010_1001_0000; 
+
+        cpu.set_d(10);
+        cpu.tick();
+        assert_eq!{cpu.get_d(), 10};
+        cpu.execute(instruction);
+        assert_eq!{cpu.get_d(), 0};
+    }
+
+    #[test]
+    fn test_cpu_one_a0() {
+        let mut cpu = Cpu::new();
+        // a: 0
+        // c: 111111
+        // d: 010
+        let instruction: u16 = 0b1110_1111_1101_0000; 
+
+        cpu.set_d(10);
+        cpu.tick();
+        assert_eq!{cpu.get_d(), 10};
+        cpu.execute(instruction);
+        assert_eq!{cpu.get_d(), 1};
+    }
+
+    #[test]
+    fn test_cpu_one_a1() {
+        let mut cpu = Cpu::new();
+        // a: 1
+        // c: 111111
+        // d: 010
+        let instruction: u16 = 0b1111_1111_1101_0000; 
+
+        cpu.set_d(10);
+        cpu.tick();
+        assert_eq!{cpu.get_d(), 10};
+        cpu.execute(instruction);
+        assert_eq!{cpu.get_d(), 1};
+    }
+
+    #[test]
     fn test_cpu_jump_a_instruction() {
         let mut cpu = Cpu::new();
         let instruction: u16 = 0x0001;
@@ -220,4 +280,19 @@ mod tests {
         cpu.execute(instruction);
         assert_eq!(cpu.get_pc(), 1);
     }
+
+    #[test]
+    fn test_cpu_jump_c_instruction_null() {
+        let mut cpu = Cpu::new();
+        let instruction: u16 = 0b1111_0000_0000_0000;
+        let memory_loc: u16 = 0x7FFF;
+
+        cpu.execute(memory_loc);
+        assert_eq!{cpu.get_a(), memory_loc};
+
+        assert_eq!(cpu.get_pc(), 1);
+        cpu.execute(instruction);
+        assert_eq!(cpu.get_pc(), 2);
+    }
+
 }
