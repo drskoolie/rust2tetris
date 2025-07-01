@@ -257,6 +257,24 @@ mod tests {
     }
 
     #[test]
+    fn test_cpu_out_d() {
+        let mut cpu = Cpu::new();
+        // a: 0
+        // c: 001100
+        // d: 010
+
+        let instruction: u16 = 0b1110_0011_0001_0000;
+
+        cpu.set_a(10);
+        cpu.set_d(15);
+        cpu.tick();
+        assert_eq!{cpu.get_a(), 10};
+        assert_eq!{cpu.get_d(), 15};
+        cpu.execute(instruction);
+        assert_eq!{cpu.get_d(), 15};
+    }
+
+    #[test]
     fn test_cpu_jump_a_instruction() {
         let mut cpu = Cpu::new();
         let instruction: u16 = 0x0001;
