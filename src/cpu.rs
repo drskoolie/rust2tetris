@@ -7,6 +7,7 @@ pub struct Cpu {
     pub d: Register16,
     pub pc: Counter16,
     pub data: Ram32K,
+    pub rom: Ram32K,
 }
 
 impl Cpu {
@@ -16,6 +17,7 @@ impl Cpu {
             d: Register16::new(),
             pc: Counter16::new(),
             data: Ram32K::new(),
+            rom: Ram32K::new(),
         }
     }
 
@@ -75,6 +77,17 @@ impl Cpu {
         self.d.tick();
         self.pc.tick();
         self.data.tick();
+    }
+
+    pub fn fetch(&self) -> u16 {
+        let address = self.get_pc() as usize;
+        self.rom.get(address)
+    }
+
+    pub fn clock(&mut self) {
+        let instruction = self.fetch();
+        self.execute(instruction);
+        self.tick();
     }
 
     pub fn execute(&mut self, instruction: u16) {
@@ -145,8 +158,6 @@ impl Cpu {
         } else {
             self.inc_pc();
         }
-        self.tick();
-
     }
 }
 
@@ -208,6 +219,7 @@ mod tests {
         let instruction: u16 = 0x7FFF;
 
         cpu.execute(instruction);
+        cpu.tick();
         assert_eq!(cpu.get_a(), instruction);
     }
 
@@ -223,6 +235,7 @@ mod tests {
         cpu.tick();
         assert_eq!{cpu.get_d(), 10};
         cpu.execute(instruction);
+        cpu.tick();
         assert_eq!{cpu.get_d(), 0};
     }
 
@@ -238,6 +251,7 @@ mod tests {
         cpu.tick();
         assert_eq!{cpu.get_d(), 10};
         cpu.execute(instruction);
+        cpu.tick();
         assert_eq!{cpu.get_d(), 1};
     }
 
@@ -253,6 +267,7 @@ mod tests {
         cpu.tick();
         assert_eq!{cpu.get_d(), 10};
         cpu.execute(instruction);
+        cpu.tick();
         assert_eq!{cpu.get_d(), not16(1).wrapping_add(1)};
     }
 
@@ -271,6 +286,7 @@ mod tests {
         assert_eq!{cpu.get_a(), 10};
         assert_eq!{cpu.get_d(), 15};
         cpu.execute(instruction);
+        cpu.tick();
         assert_eq!{cpu.get_d(), 15};
     }
 
@@ -289,6 +305,7 @@ mod tests {
         assert_eq!{cpu.get_a(), 10};
         assert_eq!{cpu.get_d(), 15};
         cpu.execute(instruction);
+        cpu.tick();
         assert_eq!{cpu.get_d(), 10};
     }
 
@@ -299,6 +316,7 @@ mod tests {
 
         assert_eq!(cpu.get_pc(), 0);
         cpu.execute(instruction);
+        cpu.tick();
         assert_eq!(cpu.get_pc(), 1);
     }
 
@@ -309,10 +327,12 @@ mod tests {
         let memory_loc: u16 = 0x7FFF;
 
         cpu.execute(memory_loc);
+        cpu.tick();
         assert_eq!{cpu.get_a(), memory_loc};
 
         assert_eq!(cpu.get_pc(), 1);
         cpu.execute(instruction);
+        cpu.tick();
         assert_eq!(cpu.get_pc(), 2);
     }
 
