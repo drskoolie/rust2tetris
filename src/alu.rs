@@ -121,4 +121,35 @@ mod tests {
             (0x0001, false, false));
     }
     
+    #[test]
+    fn test_alu_nx_true() {
+        assert_eq!(
+            alu(
+                0x0001, // x
+                0x0000, // y
+                false, // zx
+                true, // nx
+                false, // zy
+                false, // ny
+                true, // f
+                false // no
+                ),
+            (0xFFFE, false, true));
+    }
+    
+    #[test]
+    fn test_alu_nx_false() {
+        assert_eq!(
+            alu(
+                0x0001, // x
+                0x0000, // y
+                false, // zx
+                false, // nx
+                false, // zy
+                false, // ny
+                true, // f
+                false // no
+                ),
+            (0x0001, false, false));
+    }
 }
