@@ -1,3 +1,4 @@
+mod alu;
 mod gates;
 
 fn main() {
