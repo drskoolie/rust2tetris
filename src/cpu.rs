@@ -70,6 +70,19 @@ impl Cpu {
         let is_c_instruction = get_bit(instruction, 15);
 
         if is_c_instruction {
+            let is_memory = get_bit(instruction, 12);
+            let flags_alu = AluFlags {
+                zx: get_bit(instruction, 11),
+                nx: get_bit(instruction, 10),
+                zy: get_bit(instruction, 9),
+                ny: get_bit(instruction, 8),
+                f:  get_bit(instruction, 7),
+                no: get_bit(instruction, 6),
+            };
+
+            let (output, zr, ng) = alu(self.get_a(), self.get_d(), flags_alu);
+
+
         } else {
             self.set_a(instruction);
         }
