@@ -1,5 +1,5 @@
 use std::array::from_fn;
-use crate::gates::{ mux16, inc16} ;
+use crate::gates::inc16;
 
 pub struct Dff {
     input: u16,
@@ -33,8 +33,8 @@ impl Register16 {
         Register16 { dff: Dff::new() }
     }
 
-    pub fn set_input(&mut self, input: u16, load: bool) {
-        self.dff.set_input(mux16(input, self.dff.get_output(), load));
+    pub fn set(&mut self, input: u16) {
+        self.dff.set_input(input);
     }
 
     pub fn get_output(&self) -> u16 {
@@ -92,7 +92,7 @@ impl Ram32K {
 
     pub fn set(&mut self, address: usize, value: u16) {
         assert!(address < 32 * 1024);
-        self.registers[address].set_input(value, true);
+        self.registers[address].set(value);
     }
 
     pub fn tick(&mut self) {
@@ -144,16 +144,13 @@ mod tests {
         assert_eq!(reg.get_output(), 0x0);
 
         let input1 = 0xAAAA;
-        reg.set_input(input1, true);
+        reg.set(input1);
         assert_eq!(reg.get_output(), 0x0);
         reg.tick() ;
         assert_eq!(reg.get_output(), input1);
 
         let input2 = 0xBCBC;
-        reg.set_input(input2, false);
-        reg.tick();
-        assert_eq!(reg.get_output(), input1);
-        reg.set_input(input2, true);
+        reg.set(input2);
         reg.tick();
         assert_eq!(reg.get_output(), input2);
 

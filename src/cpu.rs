@@ -26,7 +26,7 @@ impl Cpu {
     }
 
     pub fn set_a(&mut self, value: u16) {
-        self.a.set_input(value, true);
+        self.a.set(value);
     }
 
     pub fn print_a(&self) {
@@ -38,7 +38,7 @@ impl Cpu {
     }
 
     pub fn set_d(&mut self, value: u16) {
-        self.d.set_input(value, true);
+        self.d.set(value);
     }
 
     pub fn print_d(&self) {
