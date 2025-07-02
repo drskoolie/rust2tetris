@@ -169,6 +169,12 @@ impl Cpu {
         self.tick();
     }
 
+    pub fn run(&mut self) {
+        loop {
+            self.clock();
+            self.print_cpu();
+        }
+    }
 }
 
 #[cfg(test)]
