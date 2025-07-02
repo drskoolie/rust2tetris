@@ -1,3 +1,5 @@
+use std::fs::File;
+use std::io::{BufRead, BufReader};
 use std::array::from_fn;
 
 pub struct Dff {
@@ -104,10 +106,61 @@ impl Ram16K {
     }
 }
 
+pub struct Rom32K {
+    registers: [Register16; 32 * 1024], // 32K = 32768
+}
+
+impl Rom32K {
+    pub fn new() -> Self {
+        Rom32K {
+            registers: from_fn(|_| Register16::new()),
+        }
+    }
+
+    pub fn set(&mut self, address: usize, value: u16) {
+        assert!(address < 32 * 1024);
+        self.registers[address].set(value);
+    }
+
+    pub fn get(&self, address: usize) -> u16 {
+        assert!(address < 32 * 1024);
+        self.registers[address].get()
+    }
+
+    pub fn tick(&mut self) {
+        for reg in self.registers.iter_mut() {
+            reg.tick();
+        }
+    }
+
+    pub fn load_from_file(&mut self, path: &str) {
+        let file = File::open(path).expect("Failed to open ROM File");
+        let reader = BufReader::new(file);
+
+        for (i, line) in reader.lines().enumerate() {
+            if i >= 32 * 1024 {
+                panic!("ROM file exceeds 32K instruction limit.");
+            }
+            let line = line.unwrap_or_else(|_| panic!("Failed reading line {} in file '{}'", i, path));
+            if line.trim().is_empty() {
+                continue;
+            }
+
+            let instruction = u16::from_str_radix(&line, 2)
+                .unwrap_or_else(|_| panic!("Invalid binary '{}' in file '{}', line {}", line, path, i));
+
+            self.set(i, instruction);
+        }
+
+        self.tick();
+    }
+}
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::fs::write;
+    use std::path::Path;
 
     #[test]
     fn test_dff_basic_behavior() {
@@ -254,17 +307,26 @@ mod tests {
 
     #[test]
     #[should_panic(expected = "assertion failed")]
-    fn test_ram32k_out_of_bounds_get() {
+    fn test_ram16k_out_of_bounds_get() {
         let ram = Ram16K::new();
         ram.get(32768); // Invalid index
     }
 
     #[test]
     #[should_panic(expected = "assertion failed")]
-    fn test_ram32k_out_of_bounds_set() {
+    fn test_ram16k_out_of_bounds_set() {
         let mut ram = Ram16K::new();
         ram.set(40000, 0x1234); // Invalid index
     }
 
+    #[test]
+    fn test_rom32k_basic() {
+        let mut rom = Rom32K::new();
+        let address: usize = 0;
+
+        rom.set(address, 10);
+        rom.tick();
+        assert_eq!(rom.get(address), 10);
+    }
 
 }
