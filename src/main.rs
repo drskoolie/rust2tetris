@@ -1,7 +1,7 @@
 mod alu;
 mod cpu;
 mod gates;
-mod sequential;
+mod memory;
 
 use cpu::Cpu;
 

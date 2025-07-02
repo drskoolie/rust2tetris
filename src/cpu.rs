@@ -1,6 +1,6 @@
 use crate::gates::get_bit;
 use crate::alu::{ alu, AluFlags };
-use crate::sequential::{ Register16, Counter16, Ram32K };
+use crate::memory::{ Register16, Counter16, Ram32K };
 
 pub struct Cpu {
     a: Register16,
