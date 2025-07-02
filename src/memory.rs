@@ -1,3 +1,4 @@
+use crate::gates::set_bit;
 use std::array::from_fn;
 
 pub struct Dff {
@@ -86,6 +87,16 @@ impl InstructionRegister16 {
 
     pub fn set(&mut self, input: u16) {
         self.reg.set(input);
+    }
+
+    pub fn set_jump(&mut self, j1: bool, j2: bool, j3: bool) {
+        let mut input = self.get();
+
+        input = set_bit(input, 2, j1);
+        input = set_bit(input, 1, j2);
+        input = set_bit(input, 0, j3);
+
+        self.set(input);
     }
 
     pub fn get(&self) -> u16 {
@@ -231,6 +242,27 @@ mod tests {
         inst_reg.set(10);
         inst_reg.tick();
         assert_eq!(inst_reg.get(), 10);
+    }
+
+    #[test]
+    fn test_instruction_reg_jump() {
+        let mut inst_reg = InstructionRegister16::new();
+
+        inst_reg.set_jump(false, false, true);
+        inst_reg.tick();
+        assert_eq!(inst_reg.get(), 0b1);
+
+        inst_reg.set_jump(false, true, false);
+        inst_reg.tick();
+        assert_eq!(inst_reg.get(), 0b10);
+
+        inst_reg.set_jump(true, false, false);
+        inst_reg.tick();
+        assert_eq!(inst_reg.get(), 0b100);
+
+        inst_reg.set_jump(true, true, true);
+        inst_reg.tick();
+        assert_eq!(inst_reg.get(), 0b111);
     }
 
     #[test]
