@@ -57,10 +57,6 @@ pub fn add16(a: u16, b:u16) -> u16 {
     result
 }
 
-pub fn inc16(a: u16) -> u16 {
-    add16(a, 0b1)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -146,12 +142,6 @@ mod tests {
     fn test_add16() {
         assert_eq!(add16(0b0001, 0b0001), 0b0010);
         assert_eq!(add16(0b0101, 0b0000), 0b0101);
-    }
-
-    #[test]
-    fn test_inc16() {
-        assert_eq!(inc16(0x0000), 0x0001);
-        assert_eq!(inc16(0xFFFF), 0x0000);
     }
 
 }
