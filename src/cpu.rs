@@ -3,7 +3,8 @@ use crate::alu::{ alu, AluFlags };
 use crate::memory::{ 
     Register16,
     Counter16,
-    Ram16K 
+    Ram16K,
+    Rom32K,
 };
 
 pub struct Cpu {
@@ -11,7 +12,7 @@ pub struct Cpu {
     d: Register16,
     pc: Counter16,
     data: Ram16K,
-    rom: Ram16K,
+    rom: Rom32K,
 }
 
 impl Cpu {
@@ -21,7 +22,7 @@ impl Cpu {
             d: Register16::new(),
             pc: Counter16::new(),
             data: Ram16K::new(),
-            rom: Ram16K::new(),
+            rom: Rom32K::new(),
         }
     }
 
@@ -81,6 +82,10 @@ impl Cpu {
         self.d.tick();
         self.pc.tick();
         self.data.tick();
+    }
+
+    pub fn load_from_file(&mut self, path: &str) {
+        self.rom.load_from_file(path);
     }
 
     pub fn fetch(&self) -> u16 {

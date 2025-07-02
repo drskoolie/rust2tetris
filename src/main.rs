@@ -8,6 +8,7 @@ use cpu::Cpu;
 fn main() {
     let mut cpu = Cpu::new();
     cpu.reset_pc();
+    cpu.load_from_file("program.hack");
     cpu.clock();
     cpu.print_cpu();
 }
