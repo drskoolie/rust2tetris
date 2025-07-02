@@ -75,6 +75,29 @@ impl Counter16 {
     }
 }
 
+pub struct InstructionRegister16 {
+    reg: Register16,
+}
+
+impl InstructionRegister16 {
+    pub fn new() -> Self {
+        InstructionRegister16 { reg: Register16::new() }
+    }
+
+    pub fn set(&mut self, input: u16) {
+        self.reg.set(input);
+    }
+
+    pub fn get(&self) -> u16 {
+        self.reg.get()
+    }
+
+    pub fn tick(&mut self) {
+        self.reg.tick();
+    }
+
+}
+
 pub struct Ram32K {
     registers: [Register16; 32 * 1024], // 32K = 32768
 }
@@ -197,6 +220,17 @@ mod tests {
         counter.inc();
         counter.tick();
         assert_eq!(counter.get(), 1);
+    }
+
+    #[test]
+    fn test_instruction_reg_basic() {
+        let mut inst_reg = InstructionRegister16::new();
+
+        assert_eq!(inst_reg.get(), 0);
+
+        inst_reg.set(10);
+        inst_reg.tick();
+        assert_eq!(inst_reg.get(), 10);
     }
 
     #[test]
