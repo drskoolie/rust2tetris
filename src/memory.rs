@@ -159,8 +159,6 @@ impl Rom32K {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::fs::write;
-    use std::path::Path;
 
     #[test]
     fn test_dff_basic_behavior() {
@@ -327,6 +325,50 @@ mod tests {
         rom.set(address, 10);
         rom.tick();
         assert_eq!(rom.get(address), 10);
+    }
+
+    #[test]
+    fn test_rom32k_load_from_file() {
+        let mut rom = Rom32K::new();
+
+        let test_path = "test_program.hack";
+        let contents = "\
+0000000000000010
+1110110000010000
+0000000000000011
+1110001100001000
+";
+        std::fs::write(test_path, contents).expect("Failed to write test file");
+        rom.load_from_file(test_path);
+
+        // Check that each line was loaded properly
+        let expected: [u16; 4] = [
+            0b0000000000000010,
+            0b1110110000010000,
+            0b0000000000000011,
+            0b1110001100001000,
+        ];
+
+        for (i, &exp) in expected.iter().enumerate() {
+            assert_eq!(rom.get(i), exp, "Mismatch at address {}", i);
+        }
+
+        // Cleanup
+        std::fs::remove_file(test_path).expect("Failed to delete test file");
+    }
+
+    #[test]
+    #[should_panic(expected = "Invalid binary")]
+    fn test_rom32k_load_from_file_invalid_binary() {
+        let mut rom = Rom32K::new();
+
+        let test_path = "test_program.hack";
+        let contents = "Not a binary";
+        std::fs::write(test_path, contents).expect("Failed to write test file");
+        rom.load_from_file(test_path);
+
+        // Cleanup
+        std::fs::remove_file(test_path).expect("Failed to delete test file");
     }
 
 }
