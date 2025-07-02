@@ -269,7 +269,7 @@ mod tests {
         assert_eq!{cpu.get_d(), 10};
         cpu.execute(instruction);
         cpu.tick();
-        assert_eq!{cpu.get_d(), (!(0x0001) as u16).wrapping_add(1)};
+        assert_eq!{cpu.get_d(), (!0x0001u16).wrapping_add(1)};
     }
 
     #[test]
