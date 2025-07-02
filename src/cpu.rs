@@ -46,19 +46,19 @@ impl Cpu {
     }
 
     pub fn get_pc(&self) -> u16 {
-        self.pc.get_output()
+        self.pc.get()
     }
 
     pub fn set_pc(&mut self, input: u16) {
-        self.pc.set_input(input, false, true, false);
+        self.pc.set(input);
     }
 
     pub fn inc_pc(&mut self) {
-        self.pc.set_input(0x0, false, false, true);
+        self.pc.inc();
     }
 
     pub fn reset_pc(&mut self) {
-        self.pc.set_input(0x0, true, false, false);
+        self.pc.reset();
     }
 
     pub fn print_pc(&self) {

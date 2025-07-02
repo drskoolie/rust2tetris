@@ -1,5 +1,4 @@
 use std::array::from_fn;
-use crate::gates::inc16;
 
 pub struct Dff {
     input: u16,
@@ -47,30 +46,32 @@ impl Register16 {
 }
 
 pub struct Counter16 {
-    dff: Dff,
+    reg: Register16,
 }
 
 impl Counter16 {
     pub fn new() -> Self {
-        Counter16 { dff: Dff::new() }
+        Counter16 { reg: Register16::new() }
     }
 
-    pub fn set_input(&mut self, input: u16, reset: bool, load: bool, inc: bool) {
-        if reset {
-            self.dff.set_input(0x0);
-        } else if load { 
-            self.dff.set_input(input);
-        } else if inc {
-            self.dff.set_input(inc16(self.dff.get_output()));
-        }
+    pub fn set(&mut self, input: u16) {
+        self.reg.set(input);
     }
 
-    pub fn get_output(&self) -> u16 {
-        self.dff.get_output()
+    pub fn reset(&mut self) {
+        self.reg.set(0x0);
+    }
+
+    pub fn inc(&mut self) {
+        self.reg.set(self.reg.get().wrapping_add(1));
+    }
+
+    pub fn get(&self) -> u16 {
+        self.reg.get()
     }
 
     pub fn tick(&mut self) {
-        self.dff.tick();
+        self.reg.tick();
     }
 }
 
@@ -160,19 +161,19 @@ mod tests {
     fn test_counter_init() {
         let counter = Counter16::new();
 
-        assert_eq!(counter.get_output(), 0x0);
+        assert_eq!(counter.get(), 0x0);
     }
 
     #[test]
-    fn test_counter_load() {
+    fn test_counter_set() {
         let mut counter = Counter16::new();
         let input = 0x10F0;
 
-        assert_eq!(counter.get_output(), 0x0);
-        counter.set_input(input, false, true, false);
-        assert_eq!(counter.get_output(), 0x0);
+        assert_eq!(counter.get(), 0x0);
+        counter.set(input);
+        assert_eq!(counter.get(), 0x0);
         counter.tick();
-        assert_eq!(counter.get_output(), input);
+        assert_eq!(counter.get(), input);
     }
 
     #[test]
@@ -180,27 +181,22 @@ mod tests {
         let mut counter = Counter16::new();
         let input = 0x10F0;
 
-        assert_eq!(counter.get_output(), 0x0);
-        counter.set_input(input, false, true, false);
-        assert_eq!(counter.get_output(), 0x0);
+        counter.set(input);
         counter.tick();
-        assert_eq!(counter.get_output(), input);
-
-        counter.set_input(input, true, false, false);
-        assert_eq!(counter.get_output(), input);
+        assert_eq!(counter.get(), input);
+        counter.reset();
         counter.tick();
-        assert_eq!(counter.get_output(), 0x0);
+        assert_eq!(counter.get(), 0x0);
     }
 
     #[test]
     fn test_counter_inc() {
         let mut counter = Counter16::new();
-        let input = 0x10F0;
 
-        assert_eq!(counter.get_output(), 0x0);
-        counter.set_input(input, false, false, true);
+        assert_eq!(counter.get(), 0x0);
+        counter.inc();
         counter.tick();
-        assert_eq!(counter.get_output(), 1);
+        assert_eq!(counter.get(), 1);
     }
 
     #[test]
