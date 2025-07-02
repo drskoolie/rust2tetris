@@ -3,11 +3,11 @@ use crate::alu::{ alu, AluFlags };
 use crate::sequential::{ Register16, Counter16, Ram32K };
 
 pub struct Cpu {
-    pub a: Register16,
-    pub d: Register16,
-    pub pc: Counter16,
-    pub data: Ram32K,
-    pub rom: Ram32K,
+    a: Register16,
+    d: Register16,
+    pc: Counter16,
+    data: Ram32K,
+    rom: Ram32K,
 }
 
 impl Cpu {
