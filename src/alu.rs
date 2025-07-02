@@ -51,10 +51,10 @@ pub fn alu(
         out = not16(out);
     }
 
-    let zr = out == 0;
-    let ng = (out & 0x8000) != 0;
+    let is_zero = out == 0;
+    let is_neg = (out & 0x8000) != 0;
 
-    (out, zr, ng)
+    (out, is_zero, is_neg)
 }
 
 #[cfg(test)]
