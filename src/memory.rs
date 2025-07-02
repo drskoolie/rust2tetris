@@ -76,24 +76,24 @@ impl Counter16 {
 }
 
 
-pub struct Ram32K {
-    registers: [Register16; 32 * 1024], // 32K = 32768
+pub struct Ram16K {
+    registers: [Register16; 16 * 1024], // 16K = 16384
 }
 
-impl Ram32K {
+impl Ram16K {
     pub fn new() -> Self {
-        Ram32K {
+        Ram16K {
             registers: from_fn(|_| Register16::new()),
         }
     }
 
     pub fn get(&self, address: usize) -> u16 {
-        assert!(address < 32 * 1024);
+        assert!(address < 16 * 1024);
         self.registers[address].get()
     }
 
     pub fn set(&mut self, address: usize, value: u16) {
-        assert!(address < 32 * 1024);
+        assert!(address < 16 * 1024);
         self.registers[address].set(value);
     }
 
@@ -201,17 +201,17 @@ mod tests {
     }
 
     #[test]
-    fn test_ram32k_initial_state() {
-        let ram = Ram32K::new();
-        for addr in [0, 1, 100, 1023, 32767] {
+    fn test_ram16k_initial_state() {
+        let ram = Ram16K::new();
+        for addr in [0, 1, 100, 1023, 16000] {
             assert_eq!(ram.get(addr), 0);
         }
     }
 
     #[test]
-    fn test_ram32k_write_and_read_single_address() {
-        let mut ram = Ram32K::new();
-        let addr = 12345;
+    fn test_ram16k_write_and_read_single_address() {
+        let mut ram = Ram16K::new();
+        let addr = 0x2FFF;
         let value = 0xBEEF;
 
         // Write value with load = true
@@ -223,8 +223,8 @@ mod tests {
     }
 
     #[test]
-    fn test_ram32k_multiple_addresses_independent() {
-        let mut ram = Ram32K::new();
+    fn test_ram16k_multiple_addresses_independent() {
+        let mut ram = Ram16K::new();
         let addr1 = 100;
         let addr2 = 200;
         let val1 = 0x1111;
@@ -239,9 +239,9 @@ mod tests {
     }
 
     #[test]
-    fn test_ram32k_write_same_address_multiple_times() {
-        let mut ram = Ram32K::new();
-        let addr = 30000;
+    fn test_ram16k_write_same_address_multiple_times() {
+        let mut ram = Ram16K::new();
+        let addr = 15000;
 
         ram.set(addr, 0xAAAA);
         ram.tick();
@@ -255,14 +255,14 @@ mod tests {
     #[test]
     #[should_panic(expected = "assertion failed")]
     fn test_ram32k_out_of_bounds_get() {
-        let ram = Ram32K::new();
+        let ram = Ram16K::new();
         ram.get(32768); // Invalid index
     }
 
     #[test]
     #[should_panic(expected = "assertion failed")]
     fn test_ram32k_out_of_bounds_set() {
-        let mut ram = Ram32K::new();
+        let mut ram = Ram16K::new();
         ram.set(40000, 0x1234); // Invalid index
     }
 

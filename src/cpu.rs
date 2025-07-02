@@ -3,15 +3,15 @@ use crate::alu::{ alu, AluFlags };
 use crate::memory::{ 
     Register16,
     Counter16,
-    Ram32K 
+    Ram16K 
 };
 
 pub struct Cpu {
     a: Register16,
     d: Register16,
     pc: Counter16,
-    data: Ram32K,
-    rom: Ram32K,
+    data: Ram16K,
+    rom: Ram16K,
 }
 
 impl Cpu {
@@ -20,8 +20,8 @@ impl Cpu {
             a: Register16::new(),
             d: Register16::new(),
             pc: Counter16::new(),
-            data: Ram32K::new(),
-            rom: Ram32K::new(),
+            data: Ram16K::new(),
+            rom: Ram16K::new(),
         }
     }
 
@@ -329,7 +329,7 @@ mod tests {
     fn test_cpu_jump_c_instruction_null() {
         let mut cpu = Cpu::new();
         let instruction: u16 = 0b1111_0000_0000_0000;
-        let memory_loc: u16 = 0x7FFF;
+        let memory_loc: u16 = 0x2FFF;
 
         cpu.execute(memory_loc);
         cpu.tick();
