@@ -84,12 +84,6 @@ impl Cpu {
         self.rom.get(address)
     }
 
-    pub fn clock(&mut self) {
-        let instruction = self.fetch();
-        self.execute(instruction);
-        self.tick();
-    }
-
     pub fn execute(&mut self, instruction: u16) {
         let is_c_instruction = get_bit(instruction, 15);
         let mut jump = false;
@@ -159,6 +153,13 @@ impl Cpu {
             self.inc_pc();
         }
     }
+
+    pub fn clock(&mut self) {
+        let instruction = self.fetch();
+        self.execute(instruction);
+        self.tick();
+    }
+
 }
 
 #[cfg(test)]
