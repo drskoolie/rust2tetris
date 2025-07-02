@@ -1,14 +1,14 @@
 use crate::gates::get_bit;
 use crate::alu::{ alu, AluFlags };
 use crate::memory::{ 
-    InstructionRegister16,
+    Register16,
     Counter16,
     Ram32K 
 };
 
 pub struct Cpu {
-    a: InstructionRegister16,
-    d: InstructionRegister16,
+    a: Register16,
+    d: Register16,
     pc: Counter16,
     data: Ram32K,
     rom: Ram32K,
@@ -17,8 +17,8 @@ pub struct Cpu {
 impl Cpu {
     pub fn new() -> Self {
         Cpu {
-            a: InstructionRegister16::new(),
-            d: InstructionRegister16::new(),
+            a: Register16::new(),
+            d: Register16::new(),
             pc: Counter16::new(),
             data: Ram32K::new(),
             rom: Ram32K::new(),

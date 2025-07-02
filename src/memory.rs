@@ -80,6 +80,7 @@ pub struct InstructionRegister16 {
     reg: Register16,
 }
 
+#[allow(dead_code)]
 impl InstructionRegister16 {
     pub fn new() -> Self {
         InstructionRegister16 { reg: Register16::new() }
