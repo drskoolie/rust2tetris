@@ -22,7 +22,7 @@ impl Cpu {
     }
 
     pub fn get_a(&self) -> u16 {
-        self.a.get_output()
+        self.a.get()
     }
 
     pub fn set_a(&mut self, value: u16) {
@@ -34,7 +34,7 @@ impl Cpu {
     }
 
     pub fn get_d(&self) -> u16 {
-        self.d.get_output()
+        self.d.get()
     }
 
     pub fn set_d(&mut self, value: u16) {

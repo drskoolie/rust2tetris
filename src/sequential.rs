@@ -37,7 +37,7 @@ impl Register16 {
         self.dff.set_input(input);
     }
 
-    pub fn get_output(&self) -> u16 {
+    pub fn get(&self) -> u16 {
         self.dff.get_output()
     }
 
@@ -87,7 +87,7 @@ impl Ram32K {
 
     pub fn get(&self, address: usize) -> u16 {
         assert!(address < 32 * 1024);
-        self.registers[address].get_output()
+        self.registers[address].get()
     }
 
     pub fn set(&mut self, address: usize, value: u16) {
@@ -141,18 +141,18 @@ mod tests {
     #[test]
     fn test_register_behavior() {
         let mut reg = Register16::new();
-        assert_eq!(reg.get_output(), 0x0);
+        assert_eq!(reg.get(), 0x0);
 
         let input1 = 0xAAAA;
         reg.set(input1);
-        assert_eq!(reg.get_output(), 0x0);
+        assert_eq!(reg.get(), 0x0);
         reg.tick() ;
-        assert_eq!(reg.get_output(), input1);
+        assert_eq!(reg.get(), input1);
 
         let input2 = 0xBCBC;
         reg.set(input2);
         reg.tick();
-        assert_eq!(reg.get_output(), input2);
+        assert_eq!(reg.get(), input2);
 
     }
 
