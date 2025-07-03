@@ -1,8 +1,8 @@
-mod parser;
 mod alu;
 mod cpu;
 mod gates;
 mod memory;
+mod parser;
 
 use cpu::Cpu;
 

@@ -59,6 +59,14 @@ mod tests {
         ];
 
         assert_eq!(result, expected);
-
     }
+
+    #[test]
+    #[should_panic(expected = "Invalid assembly instruction")]
+    fn test_parse_lines_invalid_input_panics() {
+        let input = "JUMP"; // does not contain '=' or ';'
+
+        parse_assembly(input);
+    }
+
 }
