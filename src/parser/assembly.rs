@@ -135,6 +135,43 @@ fn assemble_c_instruction(value: &str) -> String {
 
 }
 
+pub struct SymbolTable {
+    table: HashMap<String, u16>,
+}
+
+impl SymbolTable {
+    pub fn new() -> Self {
+        let mut table = HashMap::new();
+
+        // Predefined symbols
+        table.insert("SP".to_string(), 0);
+        table.insert("LCL".to_string(), 1);
+        table.insert("ARG".to_string(), 2);
+        table.insert("THIS".to_string(), 3);
+        table.insert("THAT".to_string(), 4);
+        for i in 0..16 {
+            table.insert(format!("R{}", i), i);
+        }
+        table.insert("SCREEN".to_string(), 16384);
+        table.insert("KBD".to_string(), 24576);
+
+        SymbolTable { table }
+    }
+
+    pub fn add_entry(&mut self, symbol: &str, address: u16) {
+        self.table.insert(symbol.to_string(), address);
+    }
+
+    pub fn contains(&self, symbol: &str) -> bool {
+        self.table.contains_key(symbol)
+    }
+
+    pub fn get_address(&self, symbol: &str) -> Option<u16> {
+        self.table.get(symbol).copied()
+    }
+}
+
+
 
 #[cfg(test)]
 mod tests {
@@ -230,6 +267,25 @@ mod tests {
     fn test_invalid_jump_panics() {
         assemble_c_instruction("D=A;FLY");
     }
+
+    #[test]
+    fn test_predefined_symbols() {
+        let table = SymbolTable::new();
+        assert_eq!(table.get_address("SP"), Some(0));
+        assert_eq!(table.get_address("R13"), Some(13));
+        assert_eq!(table.get_address("SCREEN"), Some(16384));
+        assert!(table.contains("KBD"));
+        assert!(!table.contains("UNDECLARED"));
+    }
+
+    #[test]
+    fn test_add_and_get() {
+        let mut table = SymbolTable::new();
+        table.add_entry("LOOP", 42);
+        assert!(table.contains("LOOP"));
+        assert_eq!(table.get_address("LOOP"), Some(42));
+    }
+
 
 
 }
