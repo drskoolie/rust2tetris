@@ -1,5 +1,3 @@
-use std::fs::File;
-use std::io::{BufRead, BufReader};
 use std::array::from_fn;
 
 pub struct Dff {
@@ -133,27 +131,26 @@ impl Rom32K {
         }
     }
 
-    pub fn load_from_file(&mut self, path: &str) {
-        let file = File::open(path).expect("Failed to open ROM File");
-        let reader = BufReader::new(file);
-
-        for (i, line) in reader.lines().enumerate() {
+    pub fn load_from_string(&mut self, contents: &str) {
+        for (i, line) in contents.lines().enumerate() {
             if i >= 32 * 1024 {
                 panic!("ROM file exceeds 32K instruction limit.");
             }
-            let line = line.unwrap_or_else(|_| panic!("Failed reading line {} in file '{}'", i, path));
-            if line.trim().is_empty() {
+
+            let line = line.trim();
+            if line.is_empty() {
                 continue;
             }
 
-            let instruction = u16::from_str_radix(&line, 2)
-                .unwrap_or_else(|_| panic!("Invalid binary '{}' in file '{}', line {}", line, path, i));
+            let instruction = u16::from_str_radix(line, 2)
+                .unwrap_or_else(|_| panic!("Invalid binary '{}' on line {}", line, i + 1));
 
             self.set(i, instruction);
-        }
-
+            }
         self.tick();
     }
+
+
 }
 
 #[cfg(test)]
@@ -328,18 +325,16 @@ mod tests {
     }
 
     #[test]
-    fn test_rom32k_load_from_file() {
+    fn test_rom32k_load_from_string() {
         let mut rom = Rom32K::new();
 
-        let test_path = "test_program.hack";
         let contents = "\
 0000000000000010
 1110110000010000
 0000000000000011
 1110001100001000
 ";
-        std::fs::write(test_path, contents).expect("Failed to write test file");
-        rom.load_from_file(test_path);
+        rom.load_from_string(contents);
 
         // Check that each line was loaded properly
         let expected: [u16; 4] = [
@@ -352,23 +347,15 @@ mod tests {
         for (i, &exp) in expected.iter().enumerate() {
             assert_eq!(rom.get(i), exp, "Mismatch at address {}", i);
         }
-
-        // Cleanup
-        std::fs::remove_file(test_path).expect("Failed to delete test file");
     }
 
     #[test]
     #[should_panic(expected = "Invalid binary")]
-    fn test_rom32k_load_from_file_invalid_binary() {
+    fn test_rom32k_load_from_string_invalid_binary() {
         let mut rom = Rom32K::new();
 
-        let test_path = "test_program.hack";
         let contents = "Not a binary";
-        std::fs::write(test_path, contents).expect("Failed to write test file");
-        rom.load_from_file(test_path);
+        rom.load_from_string(contents);
 
-        // Cleanup
-        std::fs::remove_file(test_path).expect("Failed to delete test file");
     }
-
 }

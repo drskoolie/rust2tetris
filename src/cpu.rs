@@ -1,5 +1,5 @@
+use crate::alu::{alu, AluFlags};
 use crate::gates::get_bit;
-use crate::alu::{ alu, AluFlags };
 use crate::memory::{ 
     Register16,
     Counter16,
@@ -84,8 +84,8 @@ impl Cpu {
         self.data.tick();
     }
 
-    pub fn load_from_file(&mut self, path: &str) {
-        self.rom.load_from_file(path);
+    pub fn load_from_string(&mut self, contents: &str) {
+        self.rom.load_from_string(contents);
     }
 
     pub fn fetch(&self) -> u16 {
