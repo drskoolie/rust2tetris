@@ -30,6 +30,12 @@ fn parse_assembly(contents: &str) -> Vec<AssemblyCommand> {
         .collect()
 }
 
+fn assemble_a_instruction(value: &str) -> String {
+    let number: u16 = value.parse().expect("Expected numeric A-instruction");
+    format!("0{:015b}", number)
+}
+
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -67,6 +73,14 @@ mod tests {
         let input = "JUMP"; // does not contain '=' or ';'
 
         parse_assembly(input);
+    }
+
+    #[test]
+    fn test_assemble_a_instruction() {
+        let input = "21";
+        let bin = assemble_a_instruction(input);
+
+        assert_eq!(bin, format!("{}{}{}{}", "0000", "0000", "0001", "0101"));
     }
 
 }
