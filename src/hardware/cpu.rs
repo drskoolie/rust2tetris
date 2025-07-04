@@ -6,6 +6,7 @@ use crate::hardware::memory::{
     Ram16K,
     Rom32K,
 };
+use crate::parser::table::decode_instruction;
 
 pub struct Cpu {
     a: Register16,
@@ -35,7 +36,7 @@ impl Cpu {
     }
 
     pub fn print_a(&self) {
-        println!{"A:  {:016b}", self.get_a()};
+        println!{"A:   {:016b}", self.get_a()};
     }
 
     pub fn get_d(&self) -> u16 {
@@ -47,7 +48,7 @@ impl Cpu {
     }
 
     pub fn print_d(&self) {
-        println!{"D:  {:016b}", self.get_d()};
+        println!{"D:   {:016b}", self.get_d()};
     }
 
     pub fn get_pc(&self) -> u16 {
@@ -67,11 +68,17 @@ impl Cpu {
     }
 
     pub fn print_pc(&self) {
-        println!{"PC: {:016b}", self.get_pc()};
+        println!{"PC:  {:016b}", self.get_pc()};
+    }
+
+    pub fn print_instruction(&self) {
+        let instruction = self.fetch();
+        println!("ASM: {}", decode_instruction(instruction));
     }
 
     pub fn print_cpu(&self) {
         println!{"------------"};
+        self.print_instruction();
         self.print_a();
         self.print_d();
         self.print_pc();
