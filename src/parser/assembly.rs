@@ -97,7 +97,7 @@ impl SymbolTable {
 }
 
 #[derive(Debug, PartialEq)]
-enum AssemblyCommand {
+pub enum AssemblyCommand {
     AInstruction(String),
     CInstruction(String),
     Label(String),
