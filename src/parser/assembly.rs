@@ -107,6 +107,7 @@ pub struct Assembler {
     pub symbol_table: SymbolTable,
     pub commands: Vec<AssemblyCommand>,
     pub next_variable_address: u16,
+    pub binaries: Vec<String>,
 }
 
 impl Assembler {
@@ -115,6 +116,7 @@ impl Assembler {
             symbol_table: SymbolTable::new(),
             commands: vec![],
             next_variable_address: 16,
+            binaries: vec![],
         }
     }
 
@@ -214,11 +216,11 @@ impl Assembler {
         }
     }
 
-    pub fn assemble_all(&mut self, contents: &str) -> Vec<String> {
+    pub fn assemble_all(&mut self, contents: &str) {
         self.parse_source(contents);
         self.resolve_symbols();
 
-        self.commands.iter().filter_map(|command| {
+        self.binaries = self.commands.iter().filter_map(|command| {
             match command {
                 AssemblyCommand::AInstruction(value) => {
                     Some(self.assemble_a_instruction(value))
@@ -377,19 +379,19 @@ mod tests {
         "#;
 
         let mut asm = Assembler::new();
-        let binary = asm.assemble_all(source);
+        asm.assemble_all(source);
 
-        assert_eq!(binary[0], "0000000000010000"); // @i = 16
-        assert_eq!(binary[1], "1110111111001000"); // M=1
-        assert_eq!(binary[2], "0000000000010000"); // @i
-        assert_eq!(binary[3], "1111110000010000"); // D=M
-        assert_eq!(binary[4], "0000000001100100"); // @100
-        assert_eq!(binary[5], format!("111{}{}{}{}", "0", "010011", "010","000")); // D=D-A
-        assert_eq!(binary[6], "0000000000001010"); // @END = 10
-        assert_eq!(binary[7], "1110001100000001"); // D;JGT
-        assert_eq!(binary[8], "0000000000000010"); // @LOOP = 2
-        assert_eq!(binary[9], "1110101010000111"); // 0;JMP
-        assert_eq!(binary[10], "0000000000001010"); // @END = 10
-        assert_eq!(binary[9], "1110101010000111"); // 0;JMP
+        assert_eq!(asm.binaries[0], "0000000000010000"); // @i = 16
+        assert_eq!(asm.binaries[1], "1110111111001000"); // M=1
+        assert_eq!(asm.binaries[2], "0000000000010000"); // @i
+        assert_eq!(asm.binaries[3], "1111110000010000"); // D=M
+        assert_eq!(asm.binaries[4], "0000000001100100"); // @100
+        assert_eq!(asm.binaries[5], format!("111{}{}{}{}", "0", "010011", "010","000")); // D=D-A
+        assert_eq!(asm.binaries[6], "0000000000001010"); // @END = 10
+        assert_eq!(asm.binaries[7], "1110001100000001"); // D;JGT
+        assert_eq!(asm.binaries[8], "0000000000000010"); // @LOOP = 2
+        assert_eq!(asm.binaries[9], "1110101010000111"); // 0;JMP
+        assert_eq!(asm.binaries[10], "0000000000001010"); // @END = 10
+        assert_eq!(asm.binaries[11], "1110101010000111"); // 0;JMP
     }
 }
