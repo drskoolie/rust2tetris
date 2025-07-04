@@ -18,13 +18,16 @@ pub struct Cpu {
 
 impl Cpu {
     pub fn new() -> Self {
-        Cpu {
+        let mut cpu = Cpu {
             a: Register16::new(),
             d: Register16::new(),
             pc: Counter16::new(),
             data: Ram16K::new(),
             rom: Rom32K::new(),
-        }
+        };
+        cpu.data.set(0, 256); // Stack Pointer
+        cpu.data.tick();
+        cpu
     }
 
     pub fn get_a(&self) -> u16 {
@@ -69,6 +72,10 @@ impl Cpu {
 
     pub fn print_pc(&self) {
         println!{"PC:  {:016b}", self.get_pc()};
+    }
+
+    pub fn get_data(&self, address: usize) -> u16 {
+        self.data.get(address)
     }
 
     pub fn print_instruction(&self) {

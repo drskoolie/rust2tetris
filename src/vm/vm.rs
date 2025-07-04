@@ -13,9 +13,11 @@ pub fn translate_push_constant(value: u16) -> Vec<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::hardware::cpu::Cpu;
+    use crate::parser::assembly::Assembler;
 
     #[test]
-    fn test_translate_push_constant() {
+    fn test_translate_push_constant_string() {
         let asm_code = translate_push_constant(7);
         let expected = vec![
             "@7", "D=A", "@SP", "A=M", "M=D", "@SP", "M=M+1"
@@ -26,4 +28,25 @@ mod tests {
 
         assert_eq!(asm_code, expected);
     }
+    #[test]
+    fn test_translate_push_constant_cpu() {
+        let mut cpu = Cpu::new();
+        let mut asm = Assembler::new();
+        let asm_code = translate_push_constant(7);
+
+        asm.assemble_all(&asm_code.join("\n"));
+        let no_of_instructions = asm.binaries.len();
+
+        cpu.load_from_string(&asm.binaries.join("\n"));
+
+        assert_eq!(256, cpu.get_data(0));
+        for _ in 0..no_of_instructions {
+            cpu.clock();
+        }
+
+        assert_eq!(257, cpu.get_data(0));
+        assert_eq!(7, cpu.get_data(256));
+
+    }
+
 }
