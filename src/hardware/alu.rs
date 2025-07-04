@@ -1,4 +1,4 @@
-use crate::gates::{
+use crate::hardware::gates::{
     not16,
     and16,
     add16,

@@ -1,11 +1,8 @@
-mod alu;
-mod cpu;
-mod gates;
-mod memory;
+mod hardware;
 mod parser;
 
-use cpu::Cpu;
-use parser::assembly::Assembler;
+use crate::hardware::cpu::Cpu;
+use crate::parser::assembly::Assembler;
 
 fn main() {
     let mut cpu = Cpu::new();

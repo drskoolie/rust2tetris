@@ -1,6 +1,6 @@
-use crate::alu::{alu, AluFlags};
-use crate::gates::get_bit;
-use crate::memory::{ 
+use crate::hardware::alu::{alu, AluFlags};
+use crate::hardware::gates::get_bit;
+use crate::hardware::memory::{ 
     Register16,
     Counter16,
     Ram16K,
