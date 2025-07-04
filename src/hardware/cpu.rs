@@ -180,7 +180,7 @@ impl Cpu {
         loop {
             self.clock();
             self.print_cpu();
-            // std::thread::sleep(std::time::Duration::from_secs(1));
+            std::thread::sleep(std::time::Duration::from_secs(1));
         }
     }
 }

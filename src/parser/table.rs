@@ -174,7 +174,7 @@ fn decode_c_instruction(instruction: u16) -> String {
     let jump_str = jump_mnemonic(jump);
 
     match (dest_str, jump_str) {
-        ("", "") => format!("{}", comp_str),
+        ("", "") => comp_str.to_string(),
         ("", j) => format!("{};{}", comp_str, j),
         (d, "") => format!("{}={}", d, comp_str),
         (d, j) => format!("{}={};{}", d, comp_str, j),
