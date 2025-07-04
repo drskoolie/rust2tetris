@@ -106,6 +106,7 @@ enum AssemblyCommand {
 pub struct Assembler {
     pub symbol_table: SymbolTable,
     pub commands: Vec<AssemblyCommand>,
+    pub next_variable_address: u16,
 }
 
 impl Assembler {
@@ -113,6 +114,7 @@ impl Assembler {
         Assembler { 
             symbol_table: SymbolTable::new(),
             commands: vec![],
+            next_variable_address: 16,
         }
     }
 
@@ -141,8 +143,12 @@ impl Assembler {
     }
 
     pub fn assemble_a_instruction(&self, value: &str) -> String {
-        let number: u16 = value.parse().expect("Expected numeric A-instruction");
+        let number: u16 = value.parse().unwrap_or_else(|_| {
+            self.symbol_table.get_address(value)
+                .unwrap_or_else(|| panic!("Symbol not found: {}", value))
+        });
         format!("0{:015b}", number)
+
     }
 
     pub fn assemble_c_instruction(&self, value: &str) -> String {
@@ -158,7 +164,6 @@ impl Assembler {
 
         // Split on '=' next (dest part)
         let eq_parts: Vec<&str> = parts[0].split('=').collect();
-        let asm = Assembler::new();
         if eq_parts.len() == 2 {
             dest = eq_parts[0].trim();
             comp = eq_parts[1].trim();
@@ -182,6 +187,50 @@ impl Assembler {
         format!("111{}{}{}{}", a_bit, c_bits, d_bits, j_bits)
 
     }
+
+    pub fn resolve_symbols(&mut self) {
+        let mut instruction_address = 0;
+
+        // First pass: handle labels
+        for command in &self.commands {
+            match command {
+                AssemblyCommand::Label(label) => {
+                    self.symbol_table.add_entry(label, instruction_address);
+                }
+                _ => {
+                    instruction_address += 1;
+                }
+            }
+        }
+
+        // Second pass: handle variables
+        for command in &self.commands {
+            if let AssemblyCommand::AInstruction(value) = command {
+                if value.parse::<u16>().is_err() && !self.symbol_table.contains(value) {
+                    self.symbol_table.add_entry(value, self.next_variable_address);
+                    self.next_variable_address += 1;
+                }
+            }
+        }
+    }
+
+    pub fn assemble_all(&mut self, contents: &str) -> Vec<String> {
+        self.parse_source(contents);
+        self.resolve_symbols();
+
+        self.commands.iter().filter_map(|command| {
+            match command {
+                AssemblyCommand::AInstruction(value) => {
+                    Some(self.assemble_a_instruction(value))
+                }
+                AssemblyCommand::CInstruction(value) => {
+                    Some(self.assemble_c_instruction(value))
+                }
+                AssemblyCommand::Label(_) => None,
+            }
+        }).collect()
+    }
+
 }
 
 
@@ -308,6 +357,39 @@ mod tests {
         assert_eq!(table.get_address("LOOP"), Some(42));
     }
 
+    #[test]
+    fn test_full_assembly_flow() {
+        let source = r#"
+            @i
+            M=1
+            (LOOP)
+            @i
+            D=M
+            @100
+            D=D-A
+            @END
+            D;JGT
+            @LOOP
+            0;JMP
+            (END)
+            @END
+            0;JMP
+        "#;
 
+        let mut asm = Assembler::new();
+        let binary = asm.assemble_all(source);
 
+        assert_eq!(binary[0], "0000000000010000"); // @i = 16
+        assert_eq!(binary[1], "1110111111001000"); // M=1
+        assert_eq!(binary[2], "0000000000010000"); // @i
+        assert_eq!(binary[3], "1111110000010000"); // D=M
+        assert_eq!(binary[4], "0000000001100100"); // @100
+        assert_eq!(binary[5], format!("111{}{}{}{}", "0", "010011", "010","000")); // D=D-A
+        assert_eq!(binary[6], "0000000000001010"); // @END = 10
+        assert_eq!(binary[7], "1110001100000001"); // D;JGT
+        assert_eq!(binary[8], "0000000000000010"); // @LOOP = 2
+        assert_eq!(binary[9], "1110101010000111"); // 0;JMP
+        assert_eq!(binary[10], "0000000000001010"); // @END = 10
+        assert_eq!(binary[9], "1110101010000111"); // 0;JMP
+    }
 }
