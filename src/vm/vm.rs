@@ -1,4 +1,4 @@
-pub fn translate_push_constant(value: u16) -> Vec<String> {
+pub fn push_value(value: u16) -> Vec<String> {
     vec![
         format!("@{}", value), // Load constant into A
         "D=A".to_string(),    // D = constant
@@ -18,7 +18,7 @@ mod tests {
 
     #[test]
     fn test_translate_push_constant_string() {
-        let asm_code = translate_push_constant(7);
+        let asm_code = push_value(7);
         let expected = vec![
             "@7", "D=A", "@SP", "A=M", "M=D", "@SP", "M=M+1"
         ]
@@ -32,7 +32,7 @@ mod tests {
     fn test_translate_push_constant_cpu() {
         let mut cpu = Cpu::new();
         let mut asm = Assembler::new();
-        let asm_code = translate_push_constant(7);
+        let asm_code = push_value(7);
 
         asm.assemble_all(&asm_code.join("\n"));
         let no_of_instructions = asm.binaries.len();
