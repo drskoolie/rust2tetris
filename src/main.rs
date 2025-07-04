@@ -1,5 +1,6 @@
 mod hardware;
 mod parser;
+mod vm;
 
 use crate::hardware::cpu::Cpu;
 use crate::parser::assembly::Assembler;
