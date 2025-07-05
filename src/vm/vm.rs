@@ -1,11 +1,17 @@
 pub struct Stack {
     pub commands: Vec<String>,
+    pub counter_eq: u16,
+    pub counter_gt: u16,
+    pub counter_lt: u16,
 }
 
 impl Stack {
     pub fn new() -> Self {
         Stack {
             commands: vec![],
+            counter_eq: 0,
+            counter_gt: 0,
+            counter_lt: 0,
         }
     }
 
@@ -142,6 +148,43 @@ impl Stack {
         self.commands.extend(new_commands);
 
         self.push_result();
+
+    }
+
+    pub fn eq(&mut self) {
+        let true_label = format!("EQ_TRUE_{}", self.counter_eq);
+        let end_label = format!("EQ_END_{}", self.counter_eq);
+        self.counter_eq += 1;
+        self.setup_x_y();
+
+        let new_commands = vec![
+            // M = X
+            // D = Y
+            "D=M-D".to_string(),
+            format!("@{}", true_label),
+            "D;JEQ".to_string(), // If D == 0, jump to true, else go forward
+
+            // ** Push FALSE and Jump to END
+            "@SP".to_string(),
+            "A=M".to_string(),
+            "M=0".to_string(),
+            format!("@{}", end_label),
+            "0;JMP".to_string(),
+
+            // ** Push TRUE and just continue to END
+            format!("({})", true_label),
+            "@SP".to_string(),
+            "A=M".to_string(),
+            "M=-1".to_string(),
+
+
+            // ** END and increment SP
+            format!("({})", end_label),
+            "@SP".to_string(),
+            "M=M+1".to_string(),
+        ];
+
+        self.commands.extend(new_commands);
 
     }
 
@@ -349,6 +392,30 @@ mod tests {
         assert_eq!(257, cpu.get_data(0));
         assert_eq!(0xFFFF, cpu.get_data(256));
     }
+
+    #[test]
+    fn test_stack_eq_true() {
+        let mut cpu = Cpu::new();
+        let mut asm = Assembler::new();
+        let mut stack = Stack::new();
+
+        let val1 = 10;
+
+        stack.push_value(val1);
+        stack.push_value(val1);
+        stack.eq();
+        asm.assemble_all(&stack.commands.join("\n"));
+        let no_of_instructions = asm.binaries.len();
+
+        cpu.load_from_string(&asm.binaries.join("\n"));
+        for _ in 0..no_of_instructions {
+            cpu.clock();
+        }
+
+        assert_eq!(257, cpu.get_data(0));
+        assert_eq!(0xFFFF, cpu.get_data(256));
+    }
+
 
 
 }
