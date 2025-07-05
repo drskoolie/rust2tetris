@@ -1302,4 +1302,28 @@ mod tests {
         assert_eq!(42, cpu.get_data(256));
     }
 
+    #[test]
+    fn test_stack_goto_text() {
+        let mut cpu = Cpu::new();
+        let mut asm = Assembler::new();
+        let mut stack = Stack::new();
+
+        stack.commands = vec![
+            "push constant 1".into(),
+            "if-goto SHOULD_JUMP".into(),
+            "push constant 999".into(),
+            "label SHOULD_JUMP".into(),
+            "push constant 42".into(),
+        ];
+
+        stack.assemble_all();
+        asm.assemble_all(&stack.assembly.join("\n"));
+        cpu.load_from_string(&asm.binaries.join("\n"));
+        cpu.run();
+
+        assert_eq!(257, cpu.get_data(0));
+        assert_eq!(42, cpu.get_data(256));
+
+    }
+
 }
