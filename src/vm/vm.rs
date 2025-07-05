@@ -122,6 +122,102 @@ impl Stack {
         self.assembly.extend(new_commands);
     }
 
+    pub fn pop_command(&mut self, segment: &str, number: &str) {
+        let index: u16 = number.parse().expect("Expected a number");
+
+        match segment {
+            "local" => {
+                self.pop_to_pointer("LCL", index);
+            }
+
+            "argument" => {
+                self.pop_to_pointer("ARG", index);
+            }
+
+            "this" => {
+                self.pop_to_pointer("THIS", index);
+            }
+
+            "that" => {
+                self.pop_to_pointer("THAT", index);
+            }
+
+            "temp" => {
+                let addr = 5 + index;
+                let asm = vec![
+                    "@SP".to_string(),
+                    "M=M-1".to_string(),
+                    "A=M".to_string(),
+                    "D=M".to_string(),
+                    format!("@{}", addr),
+                    "M=D".to_string(),
+                ];
+                self.assembly.extend(asm);
+            }
+
+            "pointer" => {
+                let addr = match index {
+                    0 => "THIS",
+                    1 => "THAT",
+                    _ => panic!("Invalid pointer index: {}", index),
+                };
+                let asm = vec![
+                    "@SP".to_string(),
+                    "M=M-1".to_string(),
+                    "A=M".to_string(),
+                    "D=M".to_string(),
+                    format!("@{}", addr),
+                    "M=D".to_string(),
+                ];
+                self.assembly.extend(asm);
+            }
+
+            "static" => {
+                let label = format!("Static.{}", index); // you may prefix with filename
+                let asm = vec![
+                    "@SP".to_string(),
+                    "M=M-1".to_string(),
+                    "A=M".to_string(),
+                    "D=M".to_string(),
+                    format!("@{}", label),
+                    "M=D".to_string(),
+                ];
+                self.assembly.extend(asm);
+            }
+
+            "constant" => {
+                panic!("Cannot pop to constant segment — it's not a memory region.");
+            }
+
+            _ => panic!("Unknown segment: {}", segment),
+        }
+    }
+
+    pub fn pop_to_pointer(&mut self, pointer: &str, index: u16) {
+        let asm = vec![
+            // Compute address and store it in R13
+            format!("@{}", pointer),
+            "D=M".to_string(),
+            format!("@{}", index),
+            "D=D+A".to_string(),
+            "@R13".to_string(),
+            "M=D".to_string(),
+
+            // Pop value into D
+            "@SP".to_string(),
+            "M=M-1".to_string(),
+            "A=M".to_string(),
+            "D=M".to_string(),
+
+            // Store into address in R13
+            "@R13".to_string(),
+            "A=M".to_string(),
+            "M=D".to_string(),
+        ];
+
+        self.assembly.extend(asm);
+    }
+
 
     pub fn pop_address(&mut self, address: usize) {
         let new_commands = vec![
@@ -783,5 +879,56 @@ mod tests {
         assert_eq!(0x0000, cpu.get_data(257));
     }
 
+    #[test]
+    fn test_push_constant_assembly() {
+        let mut stack = Stack::new();
+        stack.push_command("constant", "7");
+
+        let expected = [
+            "@7", "D=A", "@SP", "A=M", "M=D", "@SP", "M=M+1"
+        ];
+
+        assert_eq!(stack.assembly, expected.iter().map(|s| s.to_string()).collect::<Vec<_>>());
+    }
+
+    #[test]
+    fn test_push_constant_once() {
+        let mut cpu = Cpu::new();
+        let mut asm = Assembler::new();
+        let mut stack = Stack::new();
+
+        stack.push_command("constant", "7");
+        asm.assemble_all(&stack.assembly.join("\n"));
+        let no_of_instructions = asm.binaries.len();
+
+        cpu.load_from_string(&asm.binaries.join("\n"));
+        for _ in 0..no_of_instructions {
+            cpu.clock();
+        }
+
+        assert_eq!(257, cpu.get_data(0));
+        assert_eq!(7, cpu.get_data(256));
+    }
+
+    #[test]
+    fn test_push_constant_twice() {
+        let mut cpu = Cpu::new();
+        let mut asm = Assembler::new();
+        let mut stack = Stack::new();
+
+        stack.push_command("constant", "7");
+        stack.push_command("constant", "15");
+        asm.assemble_all(&stack.assembly.join("\n"));
+        let no_of_instructions = asm.binaries.len();
+
+        cpu.load_from_string(&asm.binaries.join("\n"));
+        for _ in 0..no_of_instructions {
+            cpu.clock();
+        }
+
+        assert_eq!(258, cpu.get_data(0));
+        assert_eq!(7, cpu.get_data(256));
+        assert_eq!(15, cpu.get_data(257));
+    }
 
 }
