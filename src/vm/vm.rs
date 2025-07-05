@@ -1161,4 +1161,31 @@ mod tests {
         assert_eq!(25, cpu.get_data(4));
     }
 
+    #[test]
+    fn test_static_segment() {
+        let mut cpu = Cpu::new();
+        let mut asm = Assembler::new();
+        let mut stack = Stack::new();
+
+        // Push 42 and 99 onto the stack, then pop into Static.0 and Static.2
+        stack.push_command("constant", "42");
+        stack.push_command("constant", "99");
+        stack.pop_command("static", "0");  // Static.0 = 99
+        stack.pop_command("static", "2");  // Static.2 = 42
+
+        asm.assemble_all(&stack.assembly.join("\n"));
+        let no_of_instructions = asm.binaries.len();
+        cpu.load_from_string(&asm.binaries.join("\n"));
+        for _ in 0..no_of_instructions {
+            cpu.clock();
+        }
+
+        let addr1 = asm.symbol_table.get_address("Static.0").unwrap() as usize;
+        let addr2 = asm.symbol_table.get_address("Static.2").unwrap() as usize;
+        assert_eq!(256, cpu.get_data(0));         // SP back to base
+        assert_eq!(99, cpu.get_data(addr1)); 
+        assert_eq!(42, cpu.get_data(addr2));
+    }
+
+
 }

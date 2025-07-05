@@ -29,7 +29,7 @@ impl Cpu {
         cpu.data.set(1, 300); // LCL
         cpu.data.set(2, 400); // ARG
         cpu.data.set(3, 3000); // THIS
-        cpu.data.set(4, 3010);; // THAT
+        cpu.data.set(4, 3010); // THAT
         cpu.data.tick();
         cpu
     }
