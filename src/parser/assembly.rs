@@ -140,6 +140,8 @@ impl Assembler {
                 AssemblyCommand::Label(_) => None,
             }
         }).collect();
+
+        self.binaries.push(format!("{:016b}", 0xFFFF)); 
     }
 
 }

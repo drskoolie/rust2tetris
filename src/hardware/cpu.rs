@@ -8,6 +8,8 @@ use crate::hardware::memory::{
 };
 use crate::parser::table::decode_instruction;
 
+const HALT: u16 = 0xFFFF;
+
 pub struct Cpu {
     a: Register16,
     d: Register16,
@@ -181,18 +183,25 @@ impl Cpu {
         }
     }
 
-    pub fn clock(&mut self) {
+    pub fn clock(&mut self) -> bool {
         let instruction = self.fetch();
+        if instruction == HALT {
+            return false;
+        }
         self.execute(instruction);
         self.tick();
+        true
     }
 
-    pub fn run(&mut self) {
-        loop {
-            self.clock();
+    pub fn run_print(&mut self) {
+        while self.clock() {
             self.print_cpu();
             std::thread::sleep(std::time::Duration::from_secs(1));
         }
+    }
+
+    pub fn run(&mut self) {
+        while self.clock() {};
     }
 }
 

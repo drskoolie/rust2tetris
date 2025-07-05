@@ -34,9 +34,39 @@ impl Stack {
                 ["and"] => self.and(),
                 ["or"] => self.or(),
                 ["not"] => self.not(),
+                ["label", label] => self.write_label(label),
+                ["goto", label] => self.write_goto(label),
+                ["if-goto", label] => self.write_if_goto(label),
                 _ => panic!("Invalid command: {:?}", cmd),
             }
         }
+    }
+
+    pub fn write_label(&mut self, label: &str) {
+        let asm = vec![
+            format!("({})", label),
+        ];
+        self.assembly.extend(asm);
+    }
+
+    pub fn write_goto(&mut self, label: &str) {
+        let asm = vec![
+            format!("@{}", label),
+            "0;JMP".to_string(),
+        ];
+        self.assembly.extend(asm);
+    }
+
+    pub fn write_if_goto(&mut self, label: &str) {
+        let asm = vec![
+            "@SP".to_string(),
+            "M=M-1".to_string(),
+            "A=M".to_string(),
+            "D=M".to_string(),
+            format!("@{}", label),
+            "D;JNE".to_string(),
+        ];
+        self.assembly.extend(asm);
     }
 
     pub fn push_command(&mut self, segment: &str, number: &str)  {
@@ -1230,6 +1260,22 @@ mod tests {
         assert_eq!(7, cpu.get_data(262));
         assert_eq!(7, cpu.get_data(addr));
         assert_eq!(0, cpu.get_data(263));
+    }
+
+    #[test]
+    fn test_stack_label() {
+        let mut cpu = Cpu::new();
+        let mut asm = Assembler::new();
+        let mut stack = Stack::new();
+
+        stack.write_goto("SKIP");
+        stack.push_command("constant", "999");
+        stack.write_label("SKIP");
+        stack.push_command("constant", "42");
+
+        asm.assemble_all(&stack.assembly.join("\n"));
+        cpu.load_from_string(&asm.binaries.join("\n"));
+        cpu.run();
     }
 
 }
