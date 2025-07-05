@@ -1276,6 +1276,9 @@ mod tests {
         asm.assemble_all(&stack.assembly.join("\n"));
         cpu.load_from_string(&asm.binaries.join("\n"));
         cpu.run();
+
+        assert_eq!(257, cpu.get_data(0));
+        assert_eq!(42, cpu.get_data(256));
     }
 
 }
