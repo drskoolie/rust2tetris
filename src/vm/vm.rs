@@ -1139,5 +1139,26 @@ mod tests {
         assert_eq!(25, cpu.get_data(5 + 3));
     }
 
+    #[test]
+    fn test_pop_pointer() {
+        let mut cpu = Cpu::new();
+        let mut asm = Assembler::new();
+        let mut stack = Stack::new();
+
+        stack.push_command("constant", "25");
+        stack.push_command("constant", "15");
+        stack.pop_command("pointer", "0");
+        stack.pop_command("pointer", "1");
+        asm.assemble_all(&stack.assembly.join("\n"));
+        let no_of_instructions = asm.binaries.len();
+        cpu.load_from_string(&asm.binaries.join("\n"));
+        for _ in 0..no_of_instructions {
+            cpu.clock();
+        }
+
+        assert_eq!(256, cpu.get_data(0));
+        assert_eq!(15, cpu.get_data(3));
+        assert_eq!(25, cpu.get_data(4));
+    }
 
 }
