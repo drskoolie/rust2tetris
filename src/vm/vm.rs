@@ -90,6 +90,33 @@ impl Stack {
         self.push_result();
     }
 
+    pub fn and(&mut self) {
+        self.setup_x_y();
+
+        let new_commands = vec![
+            // M = X
+            // D = Y
+            "D=D&M".to_string(),
+        ];
+        self.commands.extend(new_commands);
+
+        self.push_result();
+    }
+
+    pub fn or(&mut self) {
+        self.setup_x_y();
+
+        let new_commands = vec![
+            // M = X
+            // D = Y
+            "D=D|M".to_string(),
+        ];
+        self.commands.extend(new_commands);
+
+        self.push_result();
+    }
+
+
 }
 
 #[cfg(test)]
@@ -200,6 +227,54 @@ mod tests {
 
         assert_eq!(257, cpu.get_data(0));
         assert_eq!(val1-val2, cpu.get_data(256));
+    }
+
+    #[test]
+    fn test_stack_and() {
+        let mut cpu = Cpu::new();
+        let mut asm = Assembler::new();
+        let mut stack = Stack::new();
+
+        let val1 = 0b1010;
+        let val2 = 0b1100;
+
+        stack.push_value(val1);
+        stack.push_value(val2);
+        stack.and();
+        asm.assemble_all(&stack.commands.join("\n"));
+        let no_of_instructions = asm.binaries.len();
+
+        cpu.load_from_string(&asm.binaries.join("\n"));
+        for _ in 0..no_of_instructions {
+            cpu.clock();
+        }
+
+        assert_eq!(257, cpu.get_data(0));
+        assert_eq!(0b1000, cpu.get_data(256));
+    }
+
+    #[test]
+    fn test_stack_or() {
+        let mut cpu = Cpu::new();
+        let mut asm = Assembler::new();
+        let mut stack = Stack::new();
+
+        let val1 = 0b1010;
+        let val2 = 0b1100;
+
+        stack.push_value(val1);
+        stack.push_value(val2);
+        stack.or();
+        asm.assemble_all(&stack.commands.join("\n"));
+        let no_of_instructions = asm.binaries.len();
+
+        cpu.load_from_string(&asm.binaries.join("\n"));
+        for _ in 0..no_of_instructions {
+            cpu.clock();
+        }
+
+        assert_eq!(257, cpu.get_data(0));
+        assert_eq!(0b1110, cpu.get_data(256));
     }
 
 }
