@@ -36,7 +36,7 @@ impl Stack {
         self.commands.extend(new_commands);
     }
 
-    pub fn setup_x_y(&mut self) {
+    fn setup_x_y(&mut self) {
         let new_commands = vec![
             // ** Get Y and save it in D //
             "@SP".to_string(),   // A = 0,  D = N/A
@@ -53,7 +53,7 @@ impl Stack {
         self.commands.extend(new_commands);
     }
 
-    pub fn push_result(&mut self) {
+    fn push_result(&mut self) {
         let new_commands = vec![
             // ** push D //
             "M=D".to_string(),
@@ -68,12 +68,28 @@ impl Stack {
         self.setup_x_y();
 
         let new_commands = vec![
-            "D=D+M".to_string(), // D = Y+X
+            // M = X
+            // D = Y
+            "D=D+M".to_string(),
         ];
         self.commands.extend(new_commands);
 
         self.push_result();
     }
+
+    pub fn sub(&mut self) {
+        self.setup_x_y();
+
+        let new_commands = vec![
+            // M = X
+            // D = Y
+            "D=M-D".to_string(),
+        ];
+        self.commands.extend(new_commands);
+
+        self.push_result();
+    }
+
 }
 
 #[cfg(test)]
@@ -160,6 +176,30 @@ mod tests {
 
         assert_eq!(257, cpu.get_data(0));
         assert_eq!(val1+val2, cpu.get_data(256));
+    }
+
+    #[test]
+    fn test_stack_sub() {
+        let mut cpu = Cpu::new();
+        let mut asm = Assembler::new();
+        let mut stack = Stack::new();
+
+        let val1 = 25;
+        let val2 = 20;
+
+        stack.push_value(val1);
+        stack.push_value(val2);
+        stack.sub();
+        asm.assemble_all(&stack.commands.join("\n"));
+        let no_of_instructions = asm.binaries.len();
+
+        cpu.load_from_string(&asm.binaries.join("\n"));
+        for _ in 0..no_of_instructions {
+            cpu.clock();
+        }
+
+        assert_eq!(257, cpu.get_data(0));
+        assert_eq!(val1-val2, cpu.get_data(256));
     }
 
 }
