@@ -1162,7 +1162,7 @@ mod tests {
     }
 
     #[test]
-    fn test_static_segment() {
+    fn test_pop_static_segment() {
         let mut cpu = Cpu::new();
         let mut asm = Assembler::new();
         let mut stack = Stack::new();
@@ -1187,5 +1187,56 @@ mod tests {
         assert_eq!(42, cpu.get_data(addr2));
     }
 
+    #[test]
+    fn test_push_segement_all() {
+        let mut cpu = Cpu::new();
+        let mut asm = Assembler::new();
+        let mut stack = Stack::new();
+
+        stack.push_command("constant", "1");
+        stack.pop_command("local", "0");
+        stack.push_command("local", "0");
+
+        stack.push_command("constant", "2");
+        stack.pop_command("argument", "0");
+        stack.push_command("argument", "0");
+
+        stack.push_command("constant", "3");
+        stack.pop_command("this", "0");
+        stack.push_command("this", "0");
+
+        stack.push_command("constant", "4");
+        stack.pop_command("that", "0");
+        stack.push_command("that", "0");
+
+        stack.push_command("constant", "5");
+        stack.pop_command("temp", "0");
+        stack.push_command("temp", "0");
+
+        stack.push_command("constant", "6");
+        stack.pop_command("pointer", "0");
+        stack.push_command("pointer", "0");
+
+        stack.push_command("constant", "7");
+        stack.pop_command("static", "7");
+        stack.push_command("static", "7");
+
+        asm.assemble_all(&stack.assembly.join("\n"));
+        let no_of_instructions = asm.binaries.len();
+        cpu.load_from_string(&asm.binaries.join("\n"));
+        for _ in 0..no_of_instructions {
+            cpu.clock();
+        }
+
+        assert_eq!(256 + 7, cpu.get_data(0));
+        assert_eq!(1, cpu.get_data(256));
+        assert_eq!(2, cpu.get_data(257));
+        assert_eq!(3, cpu.get_data(258));
+        assert_eq!(4, cpu.get_data(259));
+        assert_eq!(5, cpu.get_data(260));
+        assert_eq!(6, cpu.get_data(261));
+        assert_eq!(7, cpu.get_data(262));
+        assert_eq!(0, cpu.get_data(263));
+    }
 
 }
