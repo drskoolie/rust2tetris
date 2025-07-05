@@ -1228,6 +1228,7 @@ mod tests {
             cpu.clock();
         }
 
+        let addr = asm.symbol_table.get_address("Static.7").unwrap() as usize;
         assert_eq!(256 + 7, cpu.get_data(0));
         assert_eq!(1, cpu.get_data(256));
         assert_eq!(2, cpu.get_data(257));
@@ -1236,6 +1237,7 @@ mod tests {
         assert_eq!(5, cpu.get_data(260));
         assert_eq!(6, cpu.get_data(261));
         assert_eq!(7, cpu.get_data(262));
+        assert_eq!(7, cpu.get_data(addr));
         assert_eq!(0, cpu.get_data(263));
     }
 
