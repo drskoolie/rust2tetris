@@ -15,18 +15,98 @@ impl Stack {
         }
     }
 
-    pub fn pop_address(&mut self, address: usize) {
-        let new_commands = vec![
-            "@SP".to_string(), // A = SP Location
-            "M=M-1".to_string(), // Decrement SP
-            "A=M".to_string(), // A = SP Pointer
-            "D=M".to_string(), // D = Ram[SP]
-            format!("@{}", address), // A = Address Location
-            "M=D".to_string(), // Ram[Address] = Ram[SP]
+    pub fn push_command(&mut self, segment: &str, number: &str)  {
+        let index: u16 = number.parse().expect("Expected a number");
+
+        match segment {
+            "constant" => {
+                self.push_value(index);
+            }
+
+            "local" => {
+                self.push_from_pointer("LCL", index);
+            }
+
+            "argument" => {
+                self.push_from_pointer("ARG", index);
+            }
+
+            "this" => {
+                self.push_from_pointer("THIS", index);
+            }
+
+            "that" => {
+                self.push_from_pointer("THAT", index);
+            }
+
+            "temp" => {
+                let addr = 5 + index;
+                let asm = vec![
+                    format!("@{}", addr),
+                    "D=M".to_string(),
+                    "@SP".to_string(),
+                    "A=M".to_string(),
+                    "M=D".to_string(),
+                    "@SP".to_string(),
+                    "M=M+1".to_string(),
+                ];
+                self.assembly.extend(asm);
+            }
+
+            "pointer" => {
+                let addr = match index {
+                    0 => "THIS",
+                    1 => "THAT",
+                    _ => panic!("Invalid pointer index: {}", index),
+                };
+                let asm = vec![
+                    format!("@{}", addr),
+                    "D=M".to_string(),
+                    "@SP".to_string(),
+                    "A=M".to_string(),
+                    "M=D".to_string(),
+                    "@SP".to_string(),
+                    "M=M+1".to_string(),
+                ];
+                self.assembly.extend(asm);
+            }
+
+            "static" => {
+                let label = format!("Static.{}", index); // later you can prefix with filename
+                let asm = vec![
+                    format!("@{}", label),
+                    "D=M".to_string(),
+                    "@SP".to_string(),
+                    "A=M".to_string(),
+                    "M=D".to_string(),
+                    "@SP".to_string(),
+                    "M=M+1".to_string(),
+                ];
+                self.assembly.extend(asm);
+            }
+
+            _ => panic!("Unknown segment: {}", segment),
+
+        }
+    }
+
+    pub fn push_from_pointer(&mut self, pointer: &str, index: u16) {
+        let asm = vec![
+            format!("@{}", pointer),
+            "D=M".to_string(),
+            format!("@{}", index),
+            "A=D+A".to_string(),
+            "D=M".to_string(),
+            "@SP".to_string(),
+            "A=M".to_string(),
+            "M=D".to_string(),
+            "@SP".to_string(),
+            "M=M+1".to_string(),
         ];
 
-        self.assembly.extend(new_commands);
+        self.assembly.extend(asm);
     }
+
 
     pub fn push_value(&mut self, value: u16) {
         let new_commands = vec![
@@ -37,6 +117,20 @@ impl Stack {
             "M=D".to_string(),    // RAM[SP] = D = Constant
             "@SP".to_string(),    // A = SP location
             "M=M+1".to_string(),  // Increment SP
+        ];
+
+        self.assembly.extend(new_commands);
+    }
+
+
+    pub fn pop_address(&mut self, address: usize) {
+        let new_commands = vec![
+            "@SP".to_string(), // A = SP Location
+            "M=M-1".to_string(), // Decrement SP
+            "A=M".to_string(), // A = SP Pointer
+            "D=M".to_string(), // D = Ram[SP]
+            format!("@{}", address), // A = Address Location
+            "M=D".to_string(), // Ram[Address] = Ram[SP]
         ];
 
         self.assembly.extend(new_commands);
