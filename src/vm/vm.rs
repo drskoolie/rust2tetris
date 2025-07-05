@@ -35,6 +35,29 @@ impl Stack {
 
         self.commands.extend(new_commands);
     }
+
+    pub fn add(&mut self) {
+        let new_commands = vec![
+            // ** Get Y and save it in D //
+            "@SP".to_string(),   // A = 0,  D = N/A
+            "M=M-1".to_string(), // Go to correct location
+            "A=M".to_string(),   // A = 257
+            "D=M".to_string(),   // D = RAM[257]
+
+            // ** Get X by setting A in the location of SP //
+            "@SP".to_string(),   // A = 0, D = y
+            "M=M-1".to_string(), // RAM[0] = 256
+            "A=M".to_string(),   // A = 256
+            "D=D+M".to_string(), // D = Y+X
+
+            // ** push D //
+            "M=D".to_string(),
+            "@SP".to_string(),
+            "M=M+1".to_string(),
+        ];
+
+        self.commands.extend(new_commands);
+    }
 }
 
 #[cfg(test)]
@@ -44,7 +67,7 @@ mod tests {
     use crate::parser::assembly::Assembler;
 
     #[test]
-    fn test_push_value_string() {
+    fn test_stack_push_value_string() {
         let mut stack = Stack::new();
         stack.push_value(7);
         let expected = vec![
@@ -58,7 +81,7 @@ mod tests {
     }
 
     #[test]
-    fn test_push_value_cpu() {
+    fn test_stack_push_value_cpu() {
         let mut cpu = Cpu::new();
         let mut asm = Assembler::new();
         let mut stack = Stack::new();
@@ -79,7 +102,7 @@ mod tests {
     }
 
     #[test]
-    fn test_pop_value() {
+    fn test_stack_pop_address() {
         let mut cpu = Cpu::new();
         let mut asm = Assembler::new();
         let mut stack = Stack::new();
@@ -97,6 +120,30 @@ mod tests {
 
         assert_eq!(256, cpu.get_data(0));
         assert_eq!(7, cpu.get_data(address));
+    }
+
+    #[test]
+    fn test_stack_add() {
+        let mut cpu = Cpu::new();
+        let mut asm = Assembler::new();
+        let mut stack = Stack::new();
+
+        let val1 = 8;
+        let val2 = 20;
+
+        stack.push_value(val1);
+        stack.push_value(val2);
+        stack.add();
+        asm.assemble_all(&stack.commands.join("\n"));
+        let no_of_instructions = asm.binaries.len();
+
+        cpu.load_from_string(&asm.binaries.join("\n"));
+        for _ in 0..no_of_instructions {
+            cpu.clock();
+        }
+
+        assert_eq!(257, cpu.get_data(0));
+        assert_eq!(val1+val2, cpu.get_data(256));
     }
 
 }
