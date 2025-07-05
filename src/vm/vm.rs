@@ -416,6 +416,31 @@ mod tests {
         assert_eq!(0xFFFF, cpu.get_data(256));
     }
 
+    #[test]
+    fn test_stack_eq_false() {
+        let mut cpu = Cpu::new();
+        let mut asm = Assembler::new();
+        let mut stack = Stack::new();
+
+        let val1 = 10;
+        let val2 = 11;
+
+        stack.push_value(val1);
+        stack.push_value(val2);
+        stack.eq();
+        asm.assemble_all(&stack.commands.join("\n"));
+        let no_of_instructions = asm.binaries.len();
+
+        cpu.load_from_string(&asm.binaries.join("\n"));
+        for _ in 0..no_of_instructions {
+            cpu.clock();
+        }
+
+        assert_eq!(257, cpu.get_data(0));
+        assert_eq!(0x0, cpu.get_data(256));
+    }
+
+
 
 
 }
