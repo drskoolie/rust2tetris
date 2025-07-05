@@ -36,7 +36,7 @@ impl Stack {
         self.commands.extend(new_commands);
     }
 
-    pub fn add(&mut self) {
+    pub fn setup_x_y(&mut self) {
         let new_commands = vec![
             // ** Get Y and save it in D //
             "@SP".to_string(),   // A = 0,  D = N/A
@@ -48,6 +48,15 @@ impl Stack {
             "@SP".to_string(),   // A = 0, D = y
             "M=M-1".to_string(), // RAM[0] = 256
             "A=M".to_string(),   // A = 256
+        ];
+
+        self.commands.extend(new_commands);
+    }
+
+    pub fn add(&mut self) {
+        self.setup_x_y();
+
+        let new_commands = vec![
             "D=D+M".to_string(), // D = Y+X
 
             // ** push D //
