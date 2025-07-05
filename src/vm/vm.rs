@@ -972,4 +972,46 @@ mod tests {
         assert_eq!(25, cpu.get_data(300 + 10));
     }
 
+    #[test]
+    fn test_pop_argument() {
+        let mut cpu = Cpu::new();
+        let mut asm = Assembler::new();
+        let mut stack = Stack::new();
+
+        stack.push_command("constant", "25");
+        stack.pop_command("argument", "0");
+        asm.assemble_all(&stack.assembly.join("\n"));
+        let no_of_instructions = asm.binaries.len();
+        cpu.load_from_string(&asm.binaries.join("\n"));
+        for _ in 0..no_of_instructions {
+            cpu.clock();
+        }
+
+        assert_eq!(256, cpu.get_data(0));
+        assert_eq!(25, cpu.get_data(400));
+    }
+
+    #[test]
+    fn test_pop_argument_index() {
+        let mut cpu = Cpu::new();
+        let mut asm = Assembler::new();
+        let mut stack = Stack::new();
+
+        stack.push_command("constant", "25");
+        stack.push_command("constant", "18");
+        stack.pop_command("argument", "1");
+        stack.pop_command("argument", "10");
+        asm.assemble_all(&stack.assembly.join("\n"));
+        let no_of_instructions = asm.binaries.len();
+        cpu.load_from_string(&asm.binaries.join("\n"));
+        for _ in 0..no_of_instructions {
+            cpu.clock();
+        }
+
+        assert_eq!(256, cpu.get_data(0));
+        assert_eq!(18, cpu.get_data(400 + 1));
+        assert_eq!(25, cpu.get_data(400 + 10));
+    }
+
+
 }
