@@ -1282,6 +1282,28 @@ mod tests {
     }
 
     #[test]
+    fn test_stack_goto_label_text() {
+        let mut cpu = Cpu::new();
+        let mut asm = Assembler::new();
+        let mut stack = Stack::new();
+
+        stack.commands = vec![
+            "goto SKIP".into(),
+            "push constant 999".into(),
+            "label SKIP".into(),
+            "push constant 42".into(),
+        ];
+
+        stack.assemble_all();
+        asm.assemble_all(&stack.assembly.join("\n"));
+        cpu.load_from_string(&asm.binaries.join("\n"));
+        cpu.run();
+
+        assert_eq!(257, cpu.get_data(0));
+        assert_eq!(42, cpu.get_data(256));
+    }
+
+    #[test]
     fn test_stack_if_goto_label() {
         let mut cpu = Cpu::new();
         let mut asm = Assembler::new();
