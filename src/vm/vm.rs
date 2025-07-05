@@ -1,5 +1,6 @@
 pub struct Stack {
     pub assembly: Vec<String>,
+    pub commands: Vec<String>,
     pub counter_eq: u16,
     pub counter_gt: u16,
     pub counter_lt: u16,
@@ -9,9 +10,32 @@ impl Stack {
     pub fn new() -> Self {
         Stack {
             assembly: vec![],
+            commands: vec![],
             counter_eq: 0,
             counter_gt: 0,
             counter_lt: 0,
+        }
+    }
+
+    pub fn assemble_all(&mut self) {
+        let commands = self.commands.clone();
+        for cmd in commands {
+            let parts: Vec<&str> = cmd.split_whitespace().collect();
+
+            match parts.as_slice() {
+                ["push", segment, index] => self.push_command(segment, index),
+                ["pop", segment, index] => self.pop_command(segment, index),
+                ["add"] => self.add(),
+                ["sub"] => self.sub(),
+                ["neg"] => self.neg(),
+                ["eq"] => self.eq(),
+                ["gt"] => self.gt(),
+                ["lt"] => self.lt(),
+                ["and"] => self.and(),
+                ["or"] => self.or(),
+                ["not"] => self.not(),
+                _ => panic!("Invalid command: {:?}", cmd),
+            }
         }
     }
 
@@ -219,18 +243,6 @@ impl Stack {
     }
 
 
-    pub fn pop_address(&mut self, address: usize) {
-        let new_commands = vec![
-            "@SP".to_string(), // A = SP Location
-            "M=M-1".to_string(), // Decrement SP
-            "A=M".to_string(), // A = SP Pointer
-            "D=M".to_string(), // D = Ram[SP]
-            format!("@{}", address), // A = Address Location
-            "M=D".to_string(), // Ram[Address] = Ram[SP]
-        ];
-
-        self.assembly.extend(new_commands);
-    }
 
     fn setup_x_y(&mut self) {
         let new_commands = vec![
@@ -417,9 +429,9 @@ impl Stack {
 
 
     pub fn lt(&mut self) {
-        let true_label = format!("GT_TRUE_{}", self.counter_gt);
-        let end_label = format!("GT_END_{}", self.counter_gt);
-        self.counter_gt += 1;
+        let true_label = format!("GT_TRUE_{}", self.counter_lt);
+        let end_label = format!("GT_END_{}", self.counter_lt);
+        self.counter_lt += 1;
         self.setup_x_y();
 
         let new_commands = vec![
@@ -493,27 +505,6 @@ mod tests {
 
         assert_eq!(257, cpu.get_data(0));
         assert_eq!(7, cpu.get_data(256));
-    }
-
-    #[test]
-    fn test_stack_pop_address() {
-        let mut cpu = Cpu::new();
-        let mut asm = Assembler::new();
-        let mut stack = Stack::new();
-        let address: usize = 20;
-
-        stack.push_value(7);
-        stack.pop_address(address);
-        asm.assemble_all(&stack.assembly.join("\n"));
-        let no_of_instructions = asm.binaries.len();
-
-        cpu.load_from_string(&asm.binaries.join("\n"));
-        for _ in 0..no_of_instructions {
-            cpu.clock();
-        }
-
-        assert_eq!(256, cpu.get_data(0));
-        assert_eq!(7, cpu.get_data(address));
     }
 
     #[test]

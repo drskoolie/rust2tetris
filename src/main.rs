@@ -11,7 +11,10 @@ fn main() {
     let mut asm = Assembler::new();
     let mut stack = Stack::new();
 
-    stack.push_value(10);
+    stack.commands = vec![
+        "push constant 7".into(),
+    ];
+    stack.assemble_all();
     asm.assemble_all(&stack.assembly.join("\n"));
 
     cpu.reset_pc();
