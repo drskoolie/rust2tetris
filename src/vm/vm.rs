@@ -1263,7 +1263,7 @@ mod tests {
     }
 
     #[test]
-    fn test_stack_label() {
+    fn test_stack_goto_label() {
         let mut cpu = Cpu::new();
         let mut asm = Assembler::new();
         let mut stack = Stack::new();
@@ -1272,6 +1272,27 @@ mod tests {
         stack.push_command("constant", "999");
         stack.write_label("SKIP");
         stack.push_command("constant", "42");
+
+        asm.assemble_all(&stack.assembly.join("\n"));
+        cpu.load_from_string(&asm.binaries.join("\n"));
+        cpu.run();
+
+        assert_eq!(257, cpu.get_data(0));
+        assert_eq!(42, cpu.get_data(256));
+    }
+
+    #[test]
+    fn test_stack_if_goto_label() {
+        let mut cpu = Cpu::new();
+        let mut asm = Assembler::new();
+        let mut stack = Stack::new();
+
+        stack.push_command("constant", "1");
+        stack.write_if_goto("SHOULD_JUMP");
+        stack.push_command("constant", "999");
+        stack.write_label("SHOULD_JUMP");
+        stack.push_command("constant", "42");
+        
 
         asm.assemble_all(&stack.assembly.join("\n"));
         cpu.load_from_string(&asm.binaries.join("\n"));
