@@ -129,7 +129,7 @@ impl Assembler {
         self.parse_source(contents);
         self.resolve_symbols();
 
-        let new_binaries: Vec<_> = self.commands.iter().filter_map(|command| {
+        self.binaries = self.commands.iter().filter_map(|command| {
             match command {
                 AssemblyCommand::AInstruction(value) => {
                     Some(self.assemble_a_instruction(value))
@@ -140,8 +140,6 @@ impl Assembler {
                 AssemblyCommand::Label(_) => None,
             }
         }).collect();
-
-        self.binaries.extend(new_binaries);
     }
 
 }
