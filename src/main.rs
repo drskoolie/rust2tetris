@@ -19,6 +19,7 @@ fn main() {
 
     cpu.reset_pc();
     cpu.load_from_string(&asm.binaries.join("\n"));
-    cpu.run_print();
     cpu.run();
+    println!("{:016b}", cpu.get_data(0));
+    cpu.run_print();
 }
