@@ -188,6 +188,44 @@ impl Stack {
 
     }
 
+    pub fn gt(&mut self) {
+        let true_label = format!("GT_TRUE_{}", self.counter_gt);
+        let end_label = format!("GT_END_{}", self.counter_gt);
+        self.counter_gt += 1;
+        self.setup_x_y();
+
+        let new_commands = vec![
+            // M = X
+            // D = Y
+            "D=M-D".to_string(),
+            format!("@{}", true_label),
+            "D;JGT".to_string(), // If D > 0, jump to true, else go forward
+
+            // ** Push FALSE and Jump to END
+            "@SP".to_string(),
+            "A=M".to_string(),
+            "M=0".to_string(),
+            format!("@{}", end_label),
+            "0;JMP".to_string(),
+
+            // ** Push TRUE and just continue to END
+            format!("({})", true_label),
+            "@SP".to_string(),
+            "A=M".to_string(),
+            "M=-1".to_string(),
+
+
+            // ** END and increment SP
+            format!("({})", end_label),
+            "@SP".to_string(),
+            "M=M+1".to_string(),
+        ];
+
+        self.commands.extend(new_commands);
+
+    }
+
+
 
 }
 
@@ -438,6 +476,108 @@ mod tests {
 
         assert_eq!(257, cpu.get_data(0));
         assert_eq!(0x0, cpu.get_data(256));
+    }
+
+    #[test]
+    fn test_stack_eq_twice() {
+        let mut cpu = Cpu::new();
+        let mut asm = Assembler::new();
+        let mut stack = Stack::new();
+
+        let val = 10;
+
+        stack.push_value(val);
+        stack.push_value(val);
+        stack.eq();
+        stack.push_value(val);
+        stack.push_value(val);
+        stack.eq();
+        asm.assemble_all(&stack.commands.join("\n"));
+        let no_of_instructions = asm.binaries.len();
+
+        cpu.load_from_string(&asm.binaries.join("\n"));
+        for _ in 0..no_of_instructions {
+            cpu.clock();
+        }
+
+        assert_eq!(258, cpu.get_data(0));
+        assert_eq!(0xFFFF, cpu.get_data(256));
+        assert_eq!(0xFFFF, cpu.get_data(257));
+    }
+
+
+    #[test]
+    fn test_stack_gt_true() {
+        let mut cpu = Cpu::new();
+        let mut asm = Assembler::new();
+        let mut stack = Stack::new();
+
+        let val1 = 10;
+
+        stack.push_value(val1 + 1);
+        stack.push_value(val1);
+        stack.gt();
+        asm.assemble_all(&stack.commands.join("\n"));
+        let no_of_instructions = asm.binaries.len();
+
+        cpu.load_from_string(&asm.binaries.join("\n"));
+        for _ in 0..no_of_instructions {
+            cpu.clock();
+        }
+
+        assert_eq!(257, cpu.get_data(0));
+        assert_eq!(0xFFFF, cpu.get_data(256));
+    }
+
+    #[test]
+    fn test_stack_gt_false() {
+        let mut cpu = Cpu::new();
+        let mut asm = Assembler::new();
+        let mut stack = Stack::new();
+
+        let val1 = 10;
+        let val2 = 11;
+
+        stack.push_value(val1);
+        stack.push_value(val2);
+        stack.gt();
+        asm.assemble_all(&stack.commands.join("\n"));
+        let no_of_instructions = asm.binaries.len();
+
+        cpu.load_from_string(&asm.binaries.join("\n"));
+        for _ in 0..no_of_instructions {
+            cpu.clock();
+        }
+
+        assert_eq!(257, cpu.get_data(0));
+        assert_eq!(0x0, cpu.get_data(256));
+    }
+
+    #[test]
+    fn test_stack_gt_twice() {
+        let mut cpu = Cpu::new();
+        let mut asm = Assembler::new();
+        let mut stack = Stack::new();
+
+        let val = 10;
+
+        stack.push_value(val+1);
+        stack.push_value(val);
+        stack.gt();
+        stack.push_value(val);
+        stack.push_value(val);
+        stack.gt();
+        asm.assemble_all(&stack.commands.join("\n"));
+        let no_of_instructions = asm.binaries.len();
+
+        cpu.load_from_string(&asm.binaries.join("\n"));
+        for _ in 0..no_of_instructions {
+            cpu.clock();
+        }
+
+        assert_eq!(258, cpu.get_data(0));
+        assert_eq!(0xFFFF, cpu.get_data(256));
+        assert_eq!(0x0000, cpu.get_data(257));
     }
 
 
