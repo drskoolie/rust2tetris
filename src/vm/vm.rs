@@ -1,5 +1,5 @@
 pub struct Stack {
-    pub commands: Vec<String>,
+    pub assembly: Vec<String>,
     pub counter_eq: u16,
     pub counter_gt: u16,
     pub counter_lt: u16,
@@ -8,7 +8,7 @@ pub struct Stack {
 impl Stack {
     pub fn new() -> Self {
         Stack {
-            commands: vec![],
+            assembly: vec![],
             counter_eq: 0,
             counter_gt: 0,
             counter_lt: 0,
@@ -25,7 +25,7 @@ impl Stack {
             "M=D".to_string(), // Ram[Address] = Ram[SP]
         ];
 
-        self.commands.extend(new_commands);
+        self.assembly.extend(new_commands);
     }
 
     pub fn push_value(&mut self, value: u16) {
@@ -39,7 +39,7 @@ impl Stack {
             "M=M+1".to_string(),  // Increment SP
         ];
 
-        self.commands.extend(new_commands);
+        self.assembly.extend(new_commands);
     }
 
     fn setup_x_y(&mut self) {
@@ -56,7 +56,7 @@ impl Stack {
             "A=M".to_string(),   // A = 256
         ];
 
-        self.commands.extend(new_commands);
+        self.assembly.extend(new_commands);
     }
 
     fn push_result(&mut self) {
@@ -67,7 +67,7 @@ impl Stack {
             "M=M+1".to_string(),
         ];
 
-        self.commands.extend(new_commands);
+        self.assembly.extend(new_commands);
     }
 
     pub fn add(&mut self) {
@@ -78,7 +78,7 @@ impl Stack {
             // D = Y
             "D=D+M".to_string(),
         ];
-        self.commands.extend(new_commands);
+        self.assembly.extend(new_commands);
 
         self.push_result();
     }
@@ -91,7 +91,7 @@ impl Stack {
             // D = Y
             "D=M-D".to_string(),
         ];
-        self.commands.extend(new_commands);
+        self.assembly.extend(new_commands);
 
         self.push_result();
     }
@@ -104,7 +104,7 @@ impl Stack {
             // D = Y
             "D=D&M".to_string(),
         ];
-        self.commands.extend(new_commands);
+        self.assembly.extend(new_commands);
 
         self.push_result();
     }
@@ -117,7 +117,7 @@ impl Stack {
             // D = Y
             "D=D|M".to_string(),
         ];
-        self.commands.extend(new_commands);
+        self.assembly.extend(new_commands);
 
         self.push_result();
     }
@@ -130,7 +130,7 @@ impl Stack {
             "D=!M".to_string(), // *sp is notted
         ];
 
-        self.commands.extend(new_commands);
+        self.assembly.extend(new_commands);
 
         self.push_result();
 
@@ -145,7 +145,7 @@ impl Stack {
             "D=-M".to_string(), // *sp is notted
         ];
 
-        self.commands.extend(new_commands);
+        self.assembly.extend(new_commands);
 
         self.push_result();
 
@@ -184,7 +184,7 @@ impl Stack {
             "M=M+1".to_string(),
         ];
 
-        self.commands.extend(new_commands);
+        self.assembly.extend(new_commands);
 
     }
 
@@ -221,7 +221,7 @@ impl Stack {
             "M=M+1".to_string(),
         ];
 
-        self.commands.extend(new_commands);
+        self.assembly.extend(new_commands);
 
     }
 
@@ -259,10 +259,9 @@ impl Stack {
             "M=M+1".to_string(),
         ];
 
-        self.commands.extend(new_commands);
+        self.assembly.extend(new_commands);
 
     }
-
 }
 
 #[cfg(test)]
@@ -282,7 +281,7 @@ mod tests {
         .map(String::from)
         .collect::<Vec<String>>();
 
-        assert_eq!(expected, stack.commands);
+        assert_eq!(expected, stack.assembly);
     }
 
     #[test]
@@ -292,7 +291,7 @@ mod tests {
         let mut stack = Stack::new();
         stack.push_value(7);
 
-        asm.assemble_all(&stack.commands.join("\n"));
+        asm.assemble_all(&stack.assembly.join("\n"));
         let no_of_instructions = asm.binaries.len();
 
         cpu.load_from_string(&asm.binaries.join("\n"));
@@ -315,7 +314,7 @@ mod tests {
 
         stack.push_value(7);
         stack.pop_address(address);
-        asm.assemble_all(&stack.commands.join("\n"));
+        asm.assemble_all(&stack.assembly.join("\n"));
         let no_of_instructions = asm.binaries.len();
 
         cpu.load_from_string(&asm.binaries.join("\n"));
@@ -339,7 +338,7 @@ mod tests {
         stack.push_value(val1);
         stack.push_value(val2);
         stack.add();
-        asm.assemble_all(&stack.commands.join("\n"));
+        asm.assemble_all(&stack.assembly.join("\n"));
         let no_of_instructions = asm.binaries.len();
 
         cpu.load_from_string(&asm.binaries.join("\n"));
@@ -363,7 +362,7 @@ mod tests {
         stack.push_value(val1);
         stack.push_value(val2);
         stack.sub();
-        asm.assemble_all(&stack.commands.join("\n"));
+        asm.assemble_all(&stack.assembly.join("\n"));
         let no_of_instructions = asm.binaries.len();
 
         cpu.load_from_string(&asm.binaries.join("\n"));
@@ -387,7 +386,7 @@ mod tests {
         stack.push_value(val1);
         stack.push_value(val2);
         stack.and();
-        asm.assemble_all(&stack.commands.join("\n"));
+        asm.assemble_all(&stack.assembly.join("\n"));
         let no_of_instructions = asm.binaries.len();
 
         cpu.load_from_string(&asm.binaries.join("\n"));
@@ -411,7 +410,7 @@ mod tests {
         stack.push_value(val1);
         stack.push_value(val2);
         stack.or();
-        asm.assemble_all(&stack.commands.join("\n"));
+        asm.assemble_all(&stack.assembly.join("\n"));
         let no_of_instructions = asm.binaries.len();
 
         cpu.load_from_string(&asm.binaries.join("\n"));
@@ -433,7 +432,7 @@ mod tests {
 
         stack.push_value(val);
         stack.not();
-        asm.assemble_all(&stack.commands.join("\n"));
+        asm.assemble_all(&stack.assembly.join("\n"));
         let no_of_instructions = asm.binaries.len();
 
         cpu.load_from_string(&asm.binaries.join("\n"));
@@ -455,7 +454,7 @@ mod tests {
 
         stack.push_value(val);
         stack.neg();
-        asm.assemble_all(&stack.commands.join("\n"));
+        asm.assemble_all(&stack.assembly.join("\n"));
         let no_of_instructions = asm.binaries.len();
 
         cpu.load_from_string(&asm.binaries.join("\n"));
@@ -478,7 +477,7 @@ mod tests {
         stack.push_value(val1);
         stack.push_value(val1);
         stack.eq();
-        asm.assemble_all(&stack.commands.join("\n"));
+        asm.assemble_all(&stack.assembly.join("\n"));
         let no_of_instructions = asm.binaries.len();
 
         cpu.load_from_string(&asm.binaries.join("\n"));
@@ -502,7 +501,7 @@ mod tests {
         stack.push_value(val1);
         stack.push_value(val2);
         stack.eq();
-        asm.assemble_all(&stack.commands.join("\n"));
+        asm.assemble_all(&stack.assembly.join("\n"));
         let no_of_instructions = asm.binaries.len();
 
         cpu.load_from_string(&asm.binaries.join("\n"));
@@ -528,7 +527,7 @@ mod tests {
         stack.push_value(val);
         stack.push_value(val);
         stack.eq();
-        asm.assemble_all(&stack.commands.join("\n"));
+        asm.assemble_all(&stack.assembly.join("\n"));
         let no_of_instructions = asm.binaries.len();
 
         cpu.load_from_string(&asm.binaries.join("\n"));
@@ -553,7 +552,7 @@ mod tests {
         stack.push_value(val1 + 1);
         stack.push_value(val1);
         stack.gt();
-        asm.assemble_all(&stack.commands.join("\n"));
+        asm.assemble_all(&stack.assembly.join("\n"));
         let no_of_instructions = asm.binaries.len();
 
         cpu.load_from_string(&asm.binaries.join("\n"));
@@ -577,7 +576,7 @@ mod tests {
         stack.push_value(val1);
         stack.push_value(val2);
         stack.gt();
-        asm.assemble_all(&stack.commands.join("\n"));
+        asm.assemble_all(&stack.assembly.join("\n"));
         let no_of_instructions = asm.binaries.len();
 
         cpu.load_from_string(&asm.binaries.join("\n"));
@@ -603,7 +602,7 @@ mod tests {
         stack.push_value(val);
         stack.push_value(val);
         stack.gt();
-        asm.assemble_all(&stack.commands.join("\n"));
+        asm.assemble_all(&stack.assembly.join("\n"));
         let no_of_instructions = asm.binaries.len();
 
         cpu.load_from_string(&asm.binaries.join("\n"));
@@ -628,7 +627,7 @@ mod tests {
         stack.push_value(val1 - 1);
         stack.push_value(val1);
         stack.lt();
-        asm.assemble_all(&stack.commands.join("\n"));
+        asm.assemble_all(&stack.assembly.join("\n"));
         let no_of_instructions = asm.binaries.len();
 
         cpu.load_from_string(&asm.binaries.join("\n"));
@@ -651,7 +650,7 @@ mod tests {
         stack.push_value(val1 + 1);
         stack.push_value(val1);
         stack.lt();
-        asm.assemble_all(&stack.commands.join("\n"));
+        asm.assemble_all(&stack.assembly.join("\n"));
         let no_of_instructions = asm.binaries.len();
 
         cpu.load_from_string(&asm.binaries.join("\n"));
@@ -677,7 +676,7 @@ mod tests {
         stack.push_value(val);
         stack.push_value(val);
         stack.lt();
-        asm.assemble_all(&stack.commands.join("\n"));
+        asm.assemble_all(&stack.assembly.join("\n"));
         let no_of_instructions = asm.binaries.len();
 
         cpu.load_from_string(&asm.binaries.join("\n"));

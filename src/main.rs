@@ -12,7 +12,7 @@ fn main() {
     let mut stack = Stack::new();
 
     stack.push_value(10);
-    asm.assemble_all(&stack.commands.join("\n"));
+    asm.assemble_all(&stack.assembly.join("\n"));
 
     cpu.reset_pc();
     cpu.load_from_string(&asm.binaries.join("\n"));
