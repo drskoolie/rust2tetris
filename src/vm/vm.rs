@@ -131,6 +131,21 @@ impl Stack {
     }
 
 
+    pub fn neg(&mut self) {
+        let new_commands = vec![
+            "@SP".to_string(), // A = 0, D = N/A
+            "M=M-1".to_string(), // A = 0, D = N/A, RAM[0] = RAM[0]-1
+            "A=M".to_string(), // A = RAM[SP]
+            "D=-M".to_string(), // *sp is notted
+        ];
+
+        self.commands.extend(new_commands);
+
+        self.push_result();
+
+    }
+
+
 }
 
 #[cfg(test)]
@@ -312,5 +327,28 @@ mod tests {
         assert_eq!(257, cpu.get_data(0));
         assert_eq!(0xFFFF, cpu.get_data(256));
     }
+
+    #[test]
+    fn test_stack_neg() {
+        let mut cpu = Cpu::new();
+        let mut asm = Assembler::new();
+        let mut stack = Stack::new();
+
+        let val = 0b1;
+
+        stack.push_value(val);
+        stack.neg();
+        asm.assemble_all(&stack.commands.join("\n"));
+        let no_of_instructions = asm.binaries.len();
+
+        cpu.load_from_string(&asm.binaries.join("\n"));
+        for _ in 0..no_of_instructions {
+            cpu.clock();
+        }
+
+        assert_eq!(257, cpu.get_data(0));
+        assert_eq!(0xFFFF, cpu.get_data(256));
+    }
+
 
 }
