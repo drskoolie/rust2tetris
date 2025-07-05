@@ -53,12 +53,8 @@ impl Stack {
         self.commands.extend(new_commands);
     }
 
-    pub fn add(&mut self) {
-        self.setup_x_y();
-
+    pub fn push_result(&mut self) {
         let new_commands = vec![
-            "D=D+M".to_string(), // D = Y+X
-
             // ** push D //
             "M=D".to_string(),
             "@SP".to_string(),
@@ -66,6 +62,17 @@ impl Stack {
         ];
 
         self.commands.extend(new_commands);
+    }
+
+    pub fn add(&mut self) {
+        self.setup_x_y();
+
+        let new_commands = vec![
+            "D=D+M".to_string(), // D = Y+X
+        ];
+        self.commands.extend(new_commands);
+
+        self.push_result();
     }
 }
 
