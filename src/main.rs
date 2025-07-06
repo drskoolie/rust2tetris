@@ -1,25 +1,19 @@
+mod executor;
 mod hardware;
 mod parser;
-mod vm;
+mod stack;
 
-use crate::hardware::cpu::Cpu;
-use crate::parser::assembly::Assembler;
-use crate::vm::vm::Stack;
+use crate::executor::executor::Executor;
 
 fn main() {
-    let mut cpu = Cpu::new();
-    let mut asm = Assembler::new();
-    let mut stack = Stack::new();
+    let mut executor = Executor::new();
 
-    stack.commands = vec![
+    let commands = vec![
         "push constant 7".into(),
     ];
-    stack.assemble_all();
-    asm.assemble_all(&stack.assembly.join("\n"));
 
-    cpu.reset_pc();
-    cpu.load_from_string(&asm.binaries.join("\n"));
-    cpu.run();
-    println!("{:016b}", cpu.get_data(0));
-    cpu.run_print();
+    executor.set_stack(commands);
+    executor.run();
+    executor.run_print();
+
 }

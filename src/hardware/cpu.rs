@@ -95,6 +95,7 @@ impl Cpu {
         self.print_a();
         self.print_d();
         self.print_pc();
+        println!("SP {:016b}", self.data.get(0));
     }
 
     pub fn tick(&mut self) {
